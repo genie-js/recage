@@ -98,10 +98,8 @@ RecordedGame.prototype.parseBody = function (options, cb) {
     options = {}
   }
   var b = BodyParser(options)
-    , rec = []
   this.getBodyStream().pipe(b)
-    .on('data', function (packet) { rec.push(packet) })
-    .on('finish', function () { cb(null, rec) })
+    .pipe(concat(function (rec) { cb(null, rec) }))
     .on('error', function (e) { cb(e) })
 
   return b
