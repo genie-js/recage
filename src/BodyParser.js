@@ -45,13 +45,20 @@ var commandMap = {
 
 module.exports = BodyParser
 
+/**
+ * Recorded Game Body parser stream. Receives body data, outputs the commands.
+ *
+ * @param {Object} options Parser Options.
+ *    `saveSync`: Whether to output sync packets. There can be a lot of these, and they
+ *                may not be very interesting. Defaults to `true`.
+ */
 function BodyParser(options) {
   if (!(this instanceof BodyParser)) return new BodyParser(options)
 
   Transform.call(this)
 
   this.buffer = null
-  this.rec = []
+  this.currentTime = 0
 
   options = options || {}
   this.saveSync = options.saveSync != null ? options.saveSync : true
@@ -61,19 +68,25 @@ function BodyParser(options) {
 }
 util.inherits(BodyParser, Transform)
 
+/**
+ * Parses incoming body data.
+ *
+ * @param {Buffer} buf Data chunk.
+ * @param {string} enc Encoding. (Not used.)
+ * @param {function()} cb Function to call after processing this chunk.
+ * @private
+ */
 BodyParser.prototype._transform = function (buf, enc, cb) {
   if (this.buffer) {
     buf = Buffer.concat([ this.buffer, buf ])
     this.buffer = null
   }
 
-  var rec = this.rec
-    , offs = 0
+  var offs = 0
     , size = buf.length
 
   var odType
     , command
-    , currentTime = 0
 
   while (offs < size - 8) {
     odType = buf.readInt32LE(offs), offs += 4
@@ -84,13 +97,12 @@ BodyParser.prototype._transform = function (buf, enc, cb) {
         this.push({ type: 'start'
                   , buf: buf.slice(offs, offs + 20) })
         offs += 20
-        continue
       }
       else if (command === -1) {
         var length = buf.readUInt32LE(offs)
         offs += 4
         this.push({ type: 'chat'
-                  , time: currentTime
+                  , time: this.currentTime
                   , length: length
                   , message: buf.toString('utf8', offs, offs + length) })
         offs += length
@@ -141,18 +153,18 @@ BodyParser.prototype._transform = function (buf, enc, cb) {
         pack.player = buf.readInt32LE(offs), offs += 4
 
         this.push({ type: 'sync'
-                  , time: currentTime
+                  , time: this.currentTime
                   , data: pack })
       }
       else {
         offs += 12
       }
-      currentTime += pack.time
+      this.currentTime += pack.time
     }
     else if (odType === 1) {
       var length = buf.readInt32LE(offs)
       offs += 4
-      if (offs + length > size) {
+      if (offs + length + 3 > size) {
         offs -= 8
         break
       }
@@ -160,26 +172,23 @@ BodyParser.prototype._transform = function (buf, enc, cb) {
       var commandName = '0x' + (command < 0x10 ? '0' : '') + command.toString(16)
       if (commandName in commandMap) {
         var value = commandMap[commandName].read(buf.slice(offs))
-        if (value == UNKNOWN_COMMAND) {
-          console.log('unknown', commandName, buf.slice(offs, offs + length))
-        }
-        if (command == 0x10) {
-          console.log('waypoint', buf.slice(offs, offs + length), value)
-        }
         this.push({ type: 'command'
-                  , time: currentTime
+                  , time: this.currentTime
                   , command: command
                   , length: length
                   , data: value })
       }
       else {
-        throw 'unknown command ' + commandName
+        this.push({ type: 'unknown'
+                  , time: this.currentTime
+                  , command: command
+                  , length: length
+                  , buf: buf.slice(offs, offs + length) })
       }
       offs += length + 3
     }
     else {
-      console.log(rec.slice(-10))
-      throw '??' + odType
+      throw new Error('Unknown odType: ' + odType)
     }
   }
 
