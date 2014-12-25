@@ -7,40 +7,40 @@ var UNKNOWN_COMMAND = {}
 unknown.read = unknown
 
 var commandMap = {
-  '0x00': commands.attack
-, '0x01': commands.stop
-, '0x02': commands.x02
-, '0x03': commands.move
-, '0x0a': commands.x0a
-, '0x0b': commands.resign
-, '0x10': commands.waypoint
-, '0x12': commands.stance
-, '0x13': commands.guard
-, '0x14': commands.follow
-, '0x15': commands.patrol
-, '0x17': commands.formation
-, '0x18': commands.save
-, '0x22': (commands.x22, unknown)
-, '0x35': (commands.x35, unknown)
-, '0x64': commands.aiTrain
-, '0x65': commands.research
-, '0x66': commands.build
-, '0x67': commands.speed
-, '0x69': commands.wall
-, '0x6a': commands.delete
-, '0x6b': commands.attackGround
-, '0x6c': commands.tribute
-, '0x6e': (commands.x6e, unknown)
-, '0x6f': commands.unload
-, '0x73': commands.flare
-, '0x75': commands.garrison
-, '0x77': commands.train
-, '0x78': commands.gatherPoint
-, '0x7a': commands.sell
-, '0x7b': commands.buy
-, '0x7f': commands.bell
-, '0x80': commands.ungarrison
-, '0xff': commands.postgame
+  0x00: commands.attack
+, 0x01: commands.stop
+, 0x02: commands.x02
+, 0x03: commands.move
+, 0x0a: commands.x0a
+, 0x0b: commands.resign
+, 0x10: commands.waypoint
+, 0x12: commands.stance
+, 0x13: commands.guard
+, 0x14: commands.follow
+, 0x15: commands.patrol
+, 0x17: commands.formation
+, 0x18: commands.save
+, 0x22: (commands.x22, unknown)
+, 0x35: (commands.x35, unknown)
+, 0x64: commands.aiTrain
+, 0x65: commands.research
+, 0x66: commands.build
+, 0x67: commands.speed
+, 0x69: commands.wall
+, 0x6a: commands.delete
+, 0x6b: commands.attackGround
+, 0x6c: commands.tribute
+, 0x6e: (commands.x6e, unknown)
+, 0x6f: commands.unload
+, 0x73: commands.flare
+, 0x75: commands.garrison
+, 0x77: commands.train
+, 0x78: commands.gatherPoint
+, 0x7a: commands.sell
+, 0x7b: commands.buy
+, 0x7f: commands.bell
+, 0x80: commands.ungarrison
+, 0xff: commands.postgame
 }
 
 module.exports = BodyParser
@@ -169,9 +169,8 @@ BodyParser.prototype._transform = function (buf, enc, cb) {
         break
       }
       command = buf.readUInt8(offs), offs += 1
-      var commandName = '0x' + (command < 0x10 ? '0' : '') + command.toString(16)
-      if (commandName in commandMap) {
-        var value = commandMap[commandName].read(buf.slice(offs))
+      if (command in commandMap) {
+        var value = commandMap[command].read(buf.slice(offs))
         this.push({ type: 'command'
                   , time: this.currentTime
                   , command: command
