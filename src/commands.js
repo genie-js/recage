@@ -164,7 +164,8 @@ exports.build = Struct({
 , x: float
 , y: float
 , building: int16
-, // ???
+  // ???
+  // builder IDs somewhere?
 })
 
 // 0x67
@@ -178,6 +179,7 @@ exports.speed = Struct({
 // 0x69
 exports.wall = Struct({
   // ???
+  // AI only, probably
 })
 
 // 0x6a
@@ -191,7 +193,7 @@ exports.delete = Struct({
 exports.attackGround = Struct({
   selectedCount: int8
 , u0: ct.buf(2)
-, // ???
+  // ???
 })
 
 // 0x6c
@@ -216,7 +218,7 @@ exports.unload = Struct({
 , u2: float
 , u3: int32
 , u4: int32
-, building: int32
+, from: int32
 , u5: uint8 // unit type?
 })
 
@@ -238,8 +240,8 @@ exports.garrison = Struct({
   // ???
   selectedCount: int8
 , u0: ct.buf(2)
-, building: int32 // sometimes -1? cancels vil production if -1 on a tc
-, u1: int32 // normally 5, different if building=-1
+, building: int32 // when -1, cancels queued production in building id in `units`
+, u1: int32 // normally 5, different if building=-1 (research id? queue pos? unit id?)
 , u2: float
 , u3: float
 , u4: int32
@@ -258,8 +260,8 @@ exports.train = Struct({
 exports.gatherPoint = Struct({
   selectedCount: int8
 , u0: ct.buf(2)
-, target: int32 // 0xffffffff if there is no target object
-, targetType: int32 // 0xffff0000 if there is no target object
+, target: int32 // 0xffffffff if there is no target object (i.e. the target is a location)
+, targetType: int32 // 0xffff0000 if there is no target object, object type otherwise?
 , x: float
 , y: float
 , objects: objectList
@@ -269,6 +271,7 @@ exports.gatherPoint = Struct({
 exports.sell = Struct({
   player: int8
 , resource: int8
+  // market commands store the amount as a byte containing 1 or 5 for 100 and 500 (shift-click)
 , amount: int8.transform(function (amount) { return amount * 100 })
 , u0: ct.buf(4)
 })
@@ -285,7 +288,7 @@ exports.buy = Struct({
 exports.bell = Struct({
   u0: ct.buf(3)
 , building: int32
-, active: int32
+, active: int32 // whether the bell turns "on" or "off", 1 if villagers enter tc, 0 if villagers exit
 })
 
 // 0x80
@@ -295,6 +298,7 @@ exports.ungarrison = Struct({
 })
 
 // 0xff
+// UserPatch multiplayer postgame data
 exports.postgame = Struct({
   u0: ct.buf(3)
 , scenarioFilename: char(32).transform(function (n) { return n.trim() })
