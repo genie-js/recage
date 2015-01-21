@@ -95,6 +95,7 @@ BodyParser.prototype._transform = function (buf, enc, cb) {
       offs += 4
       if (command === 0x01f4) {
         this.push({ type: 'start'
+                  , time: 0
                   , buf: buf.slice(offs, offs + 20) })
         offs += 20
       }
@@ -164,7 +165,7 @@ BodyParser.prototype._transform = function (buf, enc, cb) {
     else if (odType === 1) {
       var length = buf.readInt32LE(offs)
       offs += 4
-      if (offs + length + 3 > size) {
+      if (offs + length + 3 >= size) {
         offs -= 8
         break
       }
@@ -191,7 +192,7 @@ BodyParser.prototype._transform = function (buf, enc, cb) {
     }
   }
 
-  if (offs < size - 1) {
+  if (offs < size) {
     this.buffer = buf.slice(offs)
   }
 
