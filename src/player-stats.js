@@ -51,9 +51,9 @@ module.exports = Struct({
 , kill_ratio: float
 , player_killed: float
 , tribute_inefficiency: float
-, gold_bonus: float
+, gold_bonus0: float
 , town_center_unavailable: float
-, total_gold_gathered: float
+, total_gold_gathered0: float
 , writing: float
 , u33: float
 , monasteries: float
@@ -83,7 +83,7 @@ module.exports = Struct({
 , p8_kills: float
 , convert_resistance: float
 , trade_vig_rate: float
-, stone_bonus: float
+, stone_bonus0: float
 , num_units_queued: float
 , num_units_making: float
 , raider: float
