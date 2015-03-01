@@ -27,3 +27,12 @@ exports.buf = function (size) {
 
 exports.bool = t.int8.transform(function (i) { return i !== 0 })
 exports.longBool = t.int32.transform(function (i) { return i !== 0 })
+
+exports.matrix = function (x, y, type) {
+  return t.array(x, t.array(y, type))
+}
+
+exports.tile = Struct({
+  terrain: t.int8
+, elevation: t.int8
+})
