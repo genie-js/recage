@@ -1,6 +1,6 @@
 { "name": "recage"
 , "description": "Age of Empires 2 Recorded Game parser in Node.js"
-, "version": "0.0.1-alpha"
+, "version": "0.0.2-alpha"
 , "main": "./src/RecordedGame"
 , "dependencies":
   { "concat-stream": "^1.4.7"

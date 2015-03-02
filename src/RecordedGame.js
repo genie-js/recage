@@ -91,8 +91,7 @@ RecordedGame.prototype.parseHeader = function (cb) {
     .pipe(concat(function (buf) {
       var opts = { buf: buf, offset: 0 }
       const header = h.header(opts)
-      // at some point:
-      // h.player(opts, header)
+      const gaia = h.player(opts, header))
       cb(null, header)
     }))
     .on('error', function (e) { cb(e) })
