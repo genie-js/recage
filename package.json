@@ -1,8 +1,10 @@
-{ "name": "recage"
-, "description": "Age of Empires 2 Recorded Game parser in Node.js"
-, "version": "0.0.2-alpha"
-, "main": "./src/RecordedGame"
-, "dependencies":
-  { "concat-stream": "^1.4.7"
-  , "awestruct": "^0.10.0" }
+{
+  "name": "recage",
+  "description": "Age of Empires 2 Recorded Game parser in Node.js",
+  "version": "0.0.2-alpha",
+  "main": "./src/RecordedGame",
+  "dependencies": {
+    "concat-stream": "^1.4.7",
+    "awestruct": "^0.11.1"
+  }
 }
