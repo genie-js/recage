@@ -1,13 +1,15 @@
-var Struct = require('awestruct')
-var float = Struct.types.float
+import Struct, { types as t } from 'awestruct'
+const { float } = t
 
-module.exports = Struct({
-  resources: Struct({
-    food: float,
-    wood: float,
-    stone: float,
-    gold: float
-  }),
+const resources = Struct({
+  food: float,
+  wood: float,
+  stone: float,
+  gold: float
+})
+
+export default Struct({
+  resources: resources,
   headroom: float,
   u0: float,
   current_age: float,

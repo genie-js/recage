@@ -1,12 +1,10 @@
-var Transform = require('stream').Transform
-var util = require('util')
-var commands = require('./commands')
+import { Transform } from 'stream'
+import * as commands from './commands'
 
-var UNKNOWN_COMMAND = {}
-var unknown = function () { return UNKNOWN_COMMAND }
-unknown.read = unknown
+const UNKNOWN_COMMAND = {}
+const unknown = () => UNKNOWN_COMMAND
 
-var commandMap = {
+const commandMap = {
   0x00: commands.attack,
   0x01: commands.stop,
   0x02: commands.x02,
@@ -27,7 +25,7 @@ var commandMap = {
   0x66: commands.build,
   0x67: commands.speed,
   0x69: commands.wall,
-  0x6a: commands.delete,
+  0x6a: commands.del,
   0x6b: commands.attackGround,
   0x6c: commands.tribute,
   0x6e: (commands.x6e, unknown),
@@ -43,7 +41,9 @@ var commandMap = {
   0xff: commands.postgame
 }
 
-module.exports = BodyParser
+export default function (options) {
+  return new BodyParser(options)
+}
 
 /**
  * Recorded Game Body parser stream. Receives body data, outputs the commands.
@@ -52,165 +52,164 @@ module.exports = BodyParser
  *    `saveSync`: Whether to output sync packets. There can be a lot of these, and they
  *                may not be very interesting. Defaults to `true`.
  */
-function BodyParser (options) {
-  if (!(this instanceof BodyParser)) return new BodyParser(options)
+export class BodyParser extends Transform {
+  buffer = null
+  currentTime = 0
 
-  Transform.call(this)
+  constructor (options = {}) {
+    super({
+      writableObjectMode: false,
+      readableObjectMode: true
+    })
 
-  this.buffer = null
-  this.currentTime = 0
-
-  options = options || {}
-  this.saveSync = options.saveSync != null ? options.saveSync : true
-
-  this._writableState.objectMode = false
-  this._readableState.objectMode = true
-}
-util.inherits(BodyParser, Transform)
-
-/**
- * Parses incoming body data.
- *
- * @param {Buffer} buf Data chunk.
- * @param {string} enc Encoding. (Not used.)
- * @param {function()} cb Function to call after processing this chunk.
- * @private
- */
-BodyParser.prototype._transform = function (buf, enc, cb) {
-  if (this.buffer) {
-    buf = Buffer.concat([ this.buffer, buf ])
-    this.buffer = null
+    this.options = options
+    this.saveSync = options.saveSync != null ? options.saveSync : true
   }
 
-  var offs = 0
-  var size = buf.length
+  /**
+   * Parses incoming body data.
+   *
+   * @param {Buffer} buf Data chunk.
+   * @param {string} enc Encoding. (Not used.)
+   * @param {function()} cb Function to call after processing this chunk.
+   * @private
+   */
+  _transform (buf, enc, cb) {
+    if (this.buffer) {
+      buf = Buffer.concat([ this.buffer, buf ])
+      this.buffer = null
+    }
 
-  var odType
-  var command
+    var offs = 0
+    var size = buf.length
 
-  while (offs < size - 8) {
-    odType = buf.readInt32LE(offs)
-    offs += 4
-    if (odType === 4 || odType === 3) {
-      command = buf.readInt32LE(offs)
+    var odType
+    var command
+
+    while (offs < size - 8) {
+      odType = buf.readInt32LE(offs)
       offs += 4
-      if (command === 0x01f4) {
-        this.push({
-          type: 'start',
-          time: 0,
-          buf: buf.slice(offs, offs + 20)
-        })
-        offs += 20
-      } else if (command === -1) {
-        var chatLength = buf.readUInt32LE(offs)
+      if (odType === 4 || odType === 3) {
+        command = buf.readInt32LE(offs)
         offs += 4
-        this.push({
-          type: 'chat',
-          time: this.currentTime,
-          length: chatLength,
-          message: buf.toString('utf8', offs, offs + chatLength)
-        })
-        offs += chatLength
-      } else {
-        throw new TypeError('other command')
-      }
-    } else if (odType === 2) {
-      if (offs > size - 8) {
-        offs -= 4
-        break
-      }
-      // we read sync commands with the standard buffer methods because their length is not constant
-      // we cannot know in advance if the command is completely within the current buffer, so we need
-      // to be able to backtrack at different locations
-      // an alternative would be to wrap a sync Struct() in a try-catch, but that is kinda expensive
-      // compared to this
-      var pack = {}
-      var backtrack = offs - 4
-      pack.time = buf.readInt32LE(offs)
-      offs += 4
-      pack.u0 = buf.readInt32LE(offs)
-      offs += 4
-      if (pack.u0 === 0) {
-        if (offs > size - 28) {
+        if (command === 0x01f4) {
+          this.push({
+            type: 'start',
+            time: 0,
+            buf: buf.slice(offs, offs + 20)
+          })
+          offs += 20
+        } else if (command === -1) {
+          var chatLength = buf.readUInt32LE(offs)
+          offs += 4
+          this.push({
+            type: 'chat',
+            time: this.currentTime,
+            length: chatLength,
+            message: buf.toString('utf8', offs, offs + chatLength)
+          })
+          offs += chatLength
+        } else {
+          throw new TypeError('other command')
+        }
+      } else if (odType === 2) {
+        if (offs > size - 8) {
+          offs -= 4
+          break
+        }
+        // we read sync commands with the standard buffer methods because their length is not constant
+        // we cannot know in advance if the command is completely within the current buffer, so we need
+        // to be able to backtrack at different locations
+        // an alternative would be to wrap a sync Struct() in a try-catch, but that is kinda expensive
+        // compared to this
+        var pack = {}
+        var backtrack = offs - 4
+        pack.time = buf.readInt32LE(offs)
+        offs += 4
+        pack.u0 = buf.readInt32LE(offs)
+        offs += 4
+        if (pack.u0 === 0) {
+          if (offs > size - 28) {
+            offs = backtrack
+            break
+          }
+          if (this.saveSync) {
+            pack.u1 = buf.readInt32LE(offs)
+            offs += 4
+            pack.u2 = buf.slice(offs, offs + 4)
+            offs += 4
+            pack.u3 = buf.readInt32LE(offs)
+            offs += 4
+            pack.u4 = buf.readInt32LE(offs)
+            offs += 4
+            pack.u5 = buf.readInt32LE(offs)
+            offs += 4
+            pack.u6 = buf.slice(offs, offs + 4)
+            offs += 4
+            pack.u7 = buf.readInt32LE(offs)
+            offs += 4
+          } else {
+            offs += 28
+          }
+        }
+        if (offs > size - 12) {
           offs = backtrack
           break
         }
         if (this.saveSync) {
-          pack.u1 = buf.readInt32LE(offs)
+          pack.x = buf.readFloatLE(offs)
           offs += 4
-          pack.u2 = buf.slice(offs, offs + 4)
+          pack.y = buf.readFloatLE(offs)
           offs += 4
-          pack.u3 = buf.readInt32LE(offs)
+          pack.player = buf.readInt32LE(offs)
           offs += 4
-          pack.u4 = buf.readInt32LE(offs)
-          offs += 4
-          pack.u5 = buf.readInt32LE(offs)
-          offs += 4
-          pack.u6 = buf.slice(offs, offs + 4)
-          offs += 4
-          pack.u7 = buf.readInt32LE(offs)
-          offs += 4
+
+          this.push({
+            type: 'sync',
+            time: this.currentTime,
+            data: pack
+          })
         } else {
-          offs += 28
+          offs += 12
         }
-      }
-      if (offs > size - 12) {
-        offs = backtrack
-        break
-      }
-      if (this.saveSync) {
-        pack.x = buf.readFloatLE(offs)
+        this.currentTime += pack.time
+      } else if (odType === 1) {
+        var length = buf.readInt32LE(offs)
         offs += 4
-        pack.y = buf.readFloatLE(offs)
-        offs += 4
-        pack.player = buf.readInt32LE(offs)
-        offs += 4
-
-        this.push({
-          type: 'sync',
-          time: this.currentTime,
-          data: pack
-        })
+        if (offs + length + 3 >= size) {
+          offs -= 8
+          break
+        }
+        command = buf.readUInt8(offs)
+        offs += 1
+        if (command in commandMap) {
+          const value = commandMap[command](buf.slice(offs))
+          this.push({
+            type: 'command',
+            time: this.currentTime,
+            command: command,
+            length: length,
+            data: value
+          })
+        } else {
+          this.push({
+            type: 'unknown',
+            time: this.currentTime,
+            command: command,
+            length: length,
+            buf: buf.slice(offs, offs + length)
+          })
+        }
+        offs += length + 3
       } else {
-        offs += 12
+        throw new Error('Unknown odType: ' + odType)
       }
-      this.currentTime += pack.time
-    } else if (odType === 1) {
-      var length = buf.readInt32LE(offs)
-      offs += 4
-      if (offs + length + 3 >= size) {
-        offs -= 8
-        break
-      }
-      command = buf.readUInt8(offs)
-      offs += 1
-      if (command in commandMap) {
-        var value = commandMap[command].read(buf.slice(offs))
-        this.push({
-          type: 'command',
-          time: this.currentTime,
-          command: command,
-          length: length,
-          data: value
-        })
-      } else {
-        this.push({
-          type: 'unknown',
-          time: this.currentTime,
-          command: command,
-          length: length,
-          buf: buf.slice(offs, offs + length)
-        })
-      }
-      offs += length + 3
-    } else {
-      throw new Error('Unknown odType: ' + odType)
     }
-  }
 
-  if (offs < size) {
-    this.buffer = buf.slice(offs)
-  }
+    if (offs < size) {
+      this.buffer = buf.slice(offs)
+    }
 
-  cb()
+    cb()
+  }
 }

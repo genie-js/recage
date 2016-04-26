@@ -1,387 +1,378 @@
-var Struct = require('awestruct')
-var int8 = Struct.types.int8
-var uint8 = Struct.types.uint8
-var int16 = Struct.types.int16
-var int32 = Struct.types.int32
-var float = Struct.types.float
-var array = Struct.types.array
-var _if = Struct.types.if
-var char = Struct.types.char
-var ct = require('./types')
+import Struct, { types as t } from 'awestruct'
+import * as ct from './types'
 
-var objectList = array('selectedCount', int32)
+const objectList = t.array('selectedCount', t.int32)
+const listIsNotEmpty = function () {
+  return this.selectedCount < 0xff
+}
 
 // 0x00
-exports.attack = Struct({
-  playerId: int8,
-  u0: ct.buf(2),
-  targetId: int32,
-  selectedCount: int32,
-  x: float,
-  y: float,
+export const attack = Struct({
+  playerId: t.int8,
+  u0: t.buffer(2),
+  targetId: t.int32,
+  selectedCount: t.int32,
+  x: t.float,
+  y: t.float,
   // if selectedCount == 0xff, the same group is used as in the last command, and no units array is present
-  units: _if(function () {
-    return this.selectedCount < 0xff
-  }, objectList)
+  units: t.if(listIsNotEmpty, objectList)
 })
 
 // 0x01
-exports.stop = Struct({
-  selectedCount: int8,
-  units: array('selectedCount', int32)
+export const stop = Struct({
+  selectedCount: t.int8,
+  units: t.array('selectedCount', t.int32)
 })
 
 // 0x02
-exports.x02 = Struct({
-  u0: ct.buf(3),
-  u1: int32,
-  u2: int32,
-  u3: float,
-  'building?': int16,
-  u5: array(2, uint8),
-  u6: int32,
-  u7: uint8
+export const x02 = Struct({
+  u0: t.buffer(3),
+  u1: t.int32,
+  u2: t.int32,
+  u3: t.float,
+  'building?': t.int16,
+  u5: t.array(2, t.uint8),
+  u6: t.int32,
+  u7: t.uint8
 })
 
 // 0x03
-exports.move = Struct({
-  playerId: int8,
-  u0: ct.buf(2),
-  targetId: ct.buf(4),
-  selectedCount: int32,
-  x: float,
-  y: float,
-  units: _if(function () {
-    return this.selectedCount < 0xff
-  }, objectList)
+export const move = Struct({
+  playerId: t.int8,
+  u0: t.buffer(2),
+  targetId: t.buffer(4),
+  selectedCount: t.int32,
+  x: t.float,
+  y: t.float,
+  units: t.if(listIsNotEmpty, objectList)
 })
 
 // 0x0a
-exports.x0a = Struct({
+export const x0a = Struct({
   // ???
-  u0: int8,
-  u1: int8,
-  u2: int8,
-  u3: int32,
-  u4: ct.buf(4),
-  u5: int32,
-  u6: int16,
-  u7: int32,
-  u8: int32,
-  u9: int32,
-  u10: int32,
-  u11: int32,
-  u12: int16,
-  u13: int8
+  u0: t.int8,
+  u1: t.int8,
+  u2: t.int8,
+  u3: t.int32,
+  u4: t.buffer(4),
+  u5: t.int32,
+  u6: t.int16,
+  u7: t.int32,
+  u8: t.int32,
+  u9: t.int32,
+  u10: t.int32,
+  u11: t.int32,
+  u12: t.int16,
+  u13: t.int8
 })
 
 // 0x0b
-exports.resign = Struct({
-  playerId: int8,
-  playerNum: int8,
-  u0: int8
+export const resign = Struct({
+  playerId: t.int8,
+  playerNum: t.int8,
+  u0: t.int8
 })
 
 // 0x10
-exports.waypoint = Struct({
+export const waypoint = Struct({
   // ???
-  u0: int8,
-  u1: uint8,
-  u2: array(2, uint8),
-  u3: _if(function () { return this.u1 === 0x01 }, int32),
-  u4: uint8
+  u0: t.int8,
+  u1: t.uint8,
+  u2: t.array(2, t.uint8),
+  u3: t.if(function () { return this.u1 === 0x01 }, t.int32),
+  u4: t.uint8
 })
 
 // 0x12
-exports.stance = Struct({
-  selectedCount: int8,
-  stance: int8,
+export const stance = Struct({
+  selectedCount: t.int8,
+  stance: t.int8,
   units: objectList
 })
 
 // 0x13
-exports.guard = Struct({
-  u0: ct.buf(2),
-  selectedCount: int32,
-  target: int32,
+export const guard = Struct({
+  u0: t.buffer(2),
+  selectedCount: t.int32,
+  target: t.int32,
   units: objectList
 })
 
 // 0x14
-exports.follow = Struct({
-  selectedCount: int8,
-  u0: ct.buf(2),
-  target: int32,
+export const follow = Struct({
+  selectedCount: t.int8,
+  u0: t.buffer(2),
+  target: t.int32,
   units: objectList
 })
 
 // 0x15
-exports.patrol = Struct({
+export const patrol = Struct({
   // ???
 })
 
 // 0x17
-exports.formation = Struct({
-  selectedCount: int8,
-  u0: ct.buf(2),
-  formation: int32,
+export const formation = Struct({
+  selectedCount: t.int8,
+  u0: t.buffer(2),
+  formation: t.int32,
   units: objectList
 })
 
 // 0x18
-exports.save = Struct({
+export const save = Struct({
   // ???
 })
 
 // 0x22
-exports.x22 = Struct({
+export const x22 = Struct({
   // ???
 })
 
 // 0x35
-exports.x35 = Struct({
+export const x35 = Struct({
   // ???
   // ai related?
 })
 
 // 0x64
-exports.aiTrain = Struct({
-  u0: ct.buf(3),
-  building: int32,
-  unitType: int16,
-  num: int16
+export const aiTrain = Struct({
+  u0: t.buffer(3),
+  building: t.int32,
+  unitType: t.int16,
+  num: t.int16
 })
 
 // 0x65
-exports.research = Struct({
-  u0: ct.buf(3),
-  building: int32,
-  player: int16,
-  research: int16,
-  u1: ct.buf(4)
+export const research = Struct({
+  u0: t.buffer(3),
+  building: t.int32,
+  player: t.int16,
+  research: t.int16,
+  u1: t.buffer(4)
 })
 
 // 0x66
-exports.build = Struct({
-  builderCount: int8,
-  player: int16,
-  x: float,
-  y: float,
-  building: int16
+export const build = Struct({
+  builderCount: t.int8,
+  player: t.int16,
+  x: t.float,
+  y: t.float,
+  building: t.int16
   // ???
   // builder IDs somewhere?
 })
 
 // 0x67
-exports.speed = Struct({
-  u0: ct.buf(4),
-  speed: float,
-  u1: ct.buf(4),
-  u2: ct.buf(4)
+export const speed = Struct({
+  u0: t.buffer(4),
+  speed: t.float,
+  u1: t.buffer(4),
+  u2: t.buffer(4)
 })
 
 // 0x69
-exports.wall = Struct({
+export const wall = Struct({
   // ???
   // AI only, probably
 })
 
 // 0x6a
-exports.delete = Struct({
-  u0: ct.buf(3),
-  target: int32,
-  player: int32
+export const del = Struct({
+  u0: t.buffer(3),
+  target: t.int32,
+  player: t.int32
 })
 
 // 0x6b
-exports.attackGround = Struct({
-  selectedCount: int8,
-  u0: ct.buf(2)
+export const attackGround = Struct({
+  selectedCount: t.int8,
+  u0: t.buffer(2)
   // ???
 })
 
 // 0x6c
-exports.tribute = Struct({
-  from: int8,
-  to: int8,
-  resource: int8,
-  amount: float,
-  fee: float
+export const tribute = Struct({
+  from: t.int8,
+  to: t.int8,
+  resource: t.int8,
+  amount: t.float,
+  fee: t.float
 })
 
 // 0x6e
-exports.x6e = Struct({
+export const x6e = Struct({
   // ???
 })
 
 // 0x6f
-exports.unload = Struct({
-  player: int8,
-  u0: ct.buf(2),
-  u1: float,
-  u2: float,
-  u3: int32,
-  u4: int32,
-  from: int32,
-  u5: uint8 // unit type?
+export const unload = Struct({
+  player: t.int8,
+  u0: t.buffer(2),
+  u1: t.float,
+  u2: t.float,
+  u3: t.int32,
+  u4: t.int32,
+  from: t.int32,
+  u5: t.uint8 // unit type?
 })
 
 // 0x73
-exports.flare = Struct({
-  u0: ct.buf(3),
-  u1: ct.buf(4),
-  receivers: array(9, int8),
-  u2: ct.buf(3),
-  x: float,
-  y: float,
-  player: int8,
-  playerNum: int8,
-  u3: ct.buf(2)
+export const flare = Struct({
+  u0: t.buffer(3),
+  u1: t.buffer(4),
+  receivers: t.array(9, t.int8),
+  u2: t.buffer(3),
+  x: t.float,
+  y: t.float,
+  player: t.int8,
+  playerNum: t.int8,
+  u3: t.buffer(2)
 })
 
 // 0x75
-exports.garrison = Struct({
+export const garrison = Struct({
   // ???
-  selectedCount: int8,
-  u0: ct.buf(2),
-  building: int32, // when -1, cancels queued production in building id in `units`
-  u1: int32, // normally 5, different if building=-1 (research id? queue pos? unit id?)
-  u2: float,
-  u3: float,
-  u4: int32,
+  selectedCount: t.int8,
+  u0: t.buffer(2),
+  building: t.int32, // when -1, cancels queued production in building id in `units`
+  u1: t.int32, // normally 5, different if building=-1 (research id? queue pos? unit id?)
+  u2: t.float,
+  u3: t.float,
+  u4: t.int32,
   units: objectList
 })
 
 // 0x77
-exports.train = Struct({
-  u0: ct.buf(3),
-  building: int32,
-  unitType: int16,
-  num: int16
+export const train = Struct({
+  u0: t.buffer(3),
+  building: t.int32,
+  unitType: t.int16,
+  num: t.int16
 })
 
 // 0x78
-exports.gatherPoint = Struct({
-  selectedCount: int8,
-  u0: ct.buf(2),
-  target: int32, // 0xffffffff if there is no target object (i.e. the target is a location)
-  targetType: int32, // 0xffff0000 if there is no target object, object type otherwise?
-  x: float,
-  y: float,
+export const gatherPoint = Struct({
+  selectedCount: t.int8,
+  u0: t.buffer(2),
+  target: t.int32, // 0xffffffff if there is no target object (i.e. the target is a location)
+  targetType: t.int32, // 0xffff0000 if there is no target object, object type otherwise?
+  x: t.float,
+  y: t.float,
   objects: objectList
 })
 
 // 0x7a
-exports.sell = Struct({
-  player: int8,
-  resource: int8,
+export const sell = Struct({
+  player: t.int8,
+  resource: t.int8,
   // market commands store the amount as a byte containing 1 or 5 for 100 and 500 (shift-click)
-  amount: int8.transform(function (amount) { return amount * 100 }),
-  u0: ct.buf(4)
+  amount: t.int8.mapRead((amount) => amount * 100),
+  u0: t.buffer(4)
 })
 
 // 0x7b
-exports.buy = Struct({
-  player: int8,
-  resource: int8,
-  amount: int8.transform(function (amount) { return amount * 100 }),
-  u0: ct.buf(4)
+export const buy = Struct({
+  player: t.int8,
+  resource: t.int8,
+  amount: t.int8.mapRead((amount) => amount * 100),
+  u0: t.buffer(4)
 })
 
 // 0x7f
-exports.bell = Struct({
-  u0: ct.buf(3),
-  building: int32,
-  active: int32 // whether the bell turns "on" or "off", 1 if villagers enter tc, 0 if villagers exit
+export const bell = Struct({
+  u0: t.buffer(3),
+  building: t.int32,
+  active: t.int32 // whether the bell turns "on" or "off", 1 if villagers enter tc, 0 if villagers exit
 })
 
 // 0x80
-exports.ungarrison = Struct({
-  u0: ct.buf(3),
-  building: int32
+export const ungarrison = Struct({
+  u0: t.buffer(3),
+  building: t.int32
 })
 
 // 0xff
 // UserPatch multiplayer postgame data
-exports.postgame = Struct({
-  u0: ct.buf(3),
-  scenarioFilename: char(32).transform(function (n) { return n.trim() }),
-  u1: ct.buf(4),
-  duration: int32,
+export const postgame = Struct({
+  u0: t.buffer(3),
+  scenarioFilename: t.string(32).mapRead((n) => n.trim()),
+  u1: t.buffer(4),
+  duration: t.int32,
   allowCheats: ct.bool,
   complete: ct.bool,
-  u2: ct.buf(14),
-  mapSize: int8,
-  mapId: int8,
-  population: int8,
-  u3: ct.buf(1),
-  victory: int8,
-  startingAge: int8,
-  resources: int8,
+  u2: t.buffer(14),
+  mapSize: t.int8,
+  mapId: t.int8,
+  population: t.int8,
+  u3: t.buffer(1),
+  victory: t.int8,
+  startingAge: t.int8,
+  resources: t.int8,
   allTechs: ct.bool,
   teamTogether: ct.bool,
-  revealMap: int8,
-  u4: ct.buf(3),
+  revealMap: t.int8,
+  u4: t.buffer(3),
   lockTeams: ct.bool,
   lockSpeed: ct.bool,
-  u5: ct.buf(1),
-  players: array(8, Struct({
-    name: char(16).transform(function (n) { return n.trim() }),
-    totalScore: int16,
-    totalScores: array(8, int16),
+  u5: t.buffer(1),
+  players: t.array(8, Struct({
+    name: t.string(16).mapRead((n) => n.trim()),
+    totalScore: t.int16,
+    totalScores: t.array(8, t.int16),
     victory: ct.bool,
-    civilization: int8,
-    color: int8,
-    team: int8,
-    u0: ct.buf(2),
+    civilization: t.int8,
+    color: t.int8,
+    team: t.int8,
+    u0: t.buffer(2),
     mvp: ct.bool,
-    u1: ct.buf(3),
-    result: int8,
-    u2: ct.buf(3),
+    u1: t.buffer(3),
+    result: t.int8,
+    u2: t.buffer(3),
     military: Struct({
-      score: int16,
-      kills: int16,
-      u0: int16,
-      unitsLost: int16,
-      razes: int16,
-      u1: int16,
-      buildingsLost: int16,
-      conversions: int16
+      score: t.int16,
+      kills: t.int16,
+      u0: t.int16,
+      unitsLost: t.int16,
+      razes: t.int16,
+      u1: t.int16,
+      buildingsLost: t.int16,
+      conversions: t.int16
     }),
-    u3: ct.buf(32),
+    u3: t.buffer(32),
     economy: Struct({
-      score: int16,
-      u0: int16,
-      foodCollected: int32,
-      woodCollected: int32,
-      stoneCollected: int32,
-      goldCollected: int32,
-      tributeSent: int16,
-      tributeReceived: int16,
-      tradeProfit: int16,
-      relicGold: int16
+      score: t.int16,
+      u0: t.int16,
+      foodCollected: t.int32,
+      woodCollected: t.int32,
+      stoneCollected: t.int32,
+      goldCollected: t.int32,
+      tributeSent: t.int16,
+      tributeReceived: t.int16,
+      tradeProfit: t.int16,
+      relicGold: t.int16
     }),
-    u4: ct.buf(16),
+    u4: t.buffer(16),
     tech: Struct({
-      score: int16,
-      u0: int16,
-      feudalTime: int32,
-      castleTime: int32,
-      imperialTime: int32,
-      mapExploration: int8,
-      researchCount: int8,
-      researchPercent: int8
+      score: t.int16,
+      u0: t.int16,
+      feudalTime: t.int32,
+      castleTime: t.int32,
+      imperialTime: t.int32,
+      mapExploration: t.int8,
+      researchCount: t.int8,
+      researchPercent: t.int8
     }),
-    u5: ct.buf(1),
+    u5: t.buffer(1),
     society: Struct({
-      score: int16,
-      totalWonders: int8,
-      totalCastles: int8,
-      relics: int8,
-      u0: int8,
-      villagerHigh: int16
+      score: t.int16,
+      totalWonders: t.int8,
+      totalCastles: t.int8,
+      relics: t.int8,
+      u0: t.int8,
+      villagerHigh: t.int16
     }),
-    u6: ct.buf(84)
+    u6: t.buffer(84)
   })),
-  u6: ct.buf(4)
+  u6: t.buffer(4)
 })
