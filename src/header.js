@@ -79,7 +79,7 @@ export const header = Struct({
   u14: t.int32,
   // RecAnalyst does not have this +3, but has other magic numbers in the GAIA player reading code
   // This *probably* ends up the same.
-  u15: t.buffer(function () { return this.u14 * 27 + 4 + 3 })
+  u15: t.buffer((struct) => struct.u14 * 27 + 4 + 3)
 })
 
 export const player = Struct({
@@ -98,9 +98,7 @@ export const player = Struct({
   u6: t.buffer(3),
   color: t.int8,
   // 455
-  u7: t.buffer(function () {
-    return 629 - this.civHeaderLen + 41 - 1 - 8 - 9 - 1 - 3 - 1
-  }),
+  u7: t.buffer((struct) => 629 - struct.civHeaderLen + 41 - 1 - 8 - 9 - 1 - 3 - 1),
   position: Struct({
     x: t.float,
     y: t.float
@@ -109,9 +107,7 @@ export const player = Struct({
   civilization2: t.int8,
   u12: t.buffer(3),
   color2: t.int8,
-  u8: t.buffer(function () {
-    return 4183 - (629 - this.civHeaderLen + 41 - 1 - 8 - 9 - 1 - 3 - 1) - 8 - 10 - 4
-  }),
+  u8: t.buffer((struct) => 4183 - (629 - struct.civHeaderLen + 41 - 1 - 8 - 9 - 1 - 3 - 1) - 8 - 10 - 4),
   pad: t.buffer(41249),
-  pad2: t.buffer(function () { return this.$parent.mapSize.x * this.$parent.mapSize.y })
+  pad2: t.buffer(({ $parent }) => $parent.mapSize.x * $parent.mapSize.y)
 })

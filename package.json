@@ -4,7 +4,7 @@
   "version": "0.0.2-alpha",
   "main": "./src/RecordedGame",
   "dependencies": {
-    "awestruct": "^0.11.1",
+    "awestruct": "^0.12.0",
     "concat-stream": "^1.4.7"
   },
   "devDependencies": {

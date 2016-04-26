@@ -2,9 +2,6 @@ import Struct, { types as t } from 'awestruct'
 import * as ct from './types'
 
 const objectList = t.array('selectedCount', t.int32)
-const listIsNotEmpty = function () {
-  return this.selectedCount < 0xff
-}
 
 function Command (name, shape) {
   const struct = Struct(shape)
@@ -21,7 +18,7 @@ export const attack = Command('attack', {
   x: t.float,
   y: t.float,
   // if selectedCount == 0xff, the same group is used as in the last command, and no units array is present
-  units: t.if(listIsNotEmpty, objectList)
+  units: t.if((struct) => struct.selectedCount < 0xff, objectList)
 })
 
 // 0x01
@@ -50,7 +47,8 @@ export const move = Command('move', {
   selectedCount: t.int32,
   x: t.float,
   y: t.float,
-  units: t.if(listIsNotEmpty, objectList)
+  // if selectedCount == 0xff, the same group is used as in the last command, and no units array is present
+  units: t.if((struct) => struct.selectedCount < 0xff, objectList)
 })
 
 // 0x0a
@@ -85,7 +83,7 @@ export const waypoint = Command('waypoint', {
   u0: t.int8,
   u1: t.uint8,
   u2: t.array(2, t.uint8),
-  u3: t.if(function () { return this.u1 === 0x01 }, t.int32),
+  u3: t.if((struct) => struct.u1 === 0x01, t.int32),
   u4: t.uint8
 })
 
