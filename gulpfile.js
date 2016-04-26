@@ -19,7 +19,7 @@ gulp.task('build', function () {
     .pipe(newer(dest))
     .pipe(through.obj(function (file, enc, cb) {
       const path = relative(__dirname, file.path)
-      log(`Compiling '${colors.cyan(path)}'...`)
+      log('Compiling \'' + colors.cyan(path) + '\'...')
       cb(null, file)
     }))
     .pipe(babel())
