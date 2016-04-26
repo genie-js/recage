@@ -188,6 +188,7 @@ export class BodyParser extends Transform {
             type: 'command',
             time: this.currentTime,
             command: command,
+            name: commandMap[command].commandName,
             length: length,
             data: value
           })
