@@ -6,5 +6,11 @@
   "dependencies": {
     "concat-stream": "^1.4.7",
     "awestruct": "^0.11.1"
+  },
+  "devDependencies": {
+    "standard": "^6.0.8"
+  },
+  "scripts": {
+    "test": "standard src/**/*.js"
   }
 }

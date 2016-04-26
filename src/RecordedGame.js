@@ -1,21 +1,19 @@
-var Struct = require('awestruct')
-  , fs = require('fs')
-  , zlib = require('zlib')
-  , concat = require('concat-stream')
-  , Readable = require('stream').Readable
-  , PassThrough = require('stream').PassThrough
-  , h = require('./header')
-  , BodyParser = require('./BodyParser')
+var fs = require('fs')
+var zlib = require('zlib')
+var concat = require('concat-stream')
+var Readable = require('stream').Readable
+var PassThrough = require('stream').PassThrough
+var h = require('./header')
+var BodyParser = require('./BodyParser')
 
 module.exports = RecordedGame
 
-function RecordedGame(path) {
+function RecordedGame (path) {
   if (!(this instanceof RecordedGame)) return new RecordedGame(path)
 
   if (typeof path === 'string') {
     this.path = path
-  }
-  else if (Buffer.isBuffer(path)) {
+  } else if (Buffer.isBuffer(path)) {
     this.buf = path
     this.headerLen = path.readInt32LE(0)
     this.nextHeader = path.readInt32LE(4)
@@ -29,8 +27,7 @@ function RecordedGame(path) {
 RecordedGame.prototype.sliceStream = function (start, end) {
   if (this.path) {
     return fs.createReadStream(this.path, { fd: this.fd, start: start, end: end })
-  }
-  else if (this.buf) {
+  } else if (this.buf) {
     var s = Readable()
     s._read = function () {
       s.push(this.buf.slice(start, end))
@@ -91,7 +88,6 @@ RecordedGame.prototype.parseHeader = function (cb) {
     .pipe(concat(function (buf) {
       var opts = { buf: buf, offset: 0 }
       const header = h.header(opts)
-      const gaia = h.player(opts, header))
       cb(null, header)
     }))
     .on('error', function (e) { cb(e) })
