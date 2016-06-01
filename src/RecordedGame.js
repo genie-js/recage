@@ -2,7 +2,7 @@ import fs from 'fs'
 import zlib from 'zlib'
 import concat from 'concat-stream'
 import { Readable, PassThrough } from 'stream'
-import h from './header'
+import * as h from './header'
 import BodyParser from './BodyParser'
 
 export default function (path) {
