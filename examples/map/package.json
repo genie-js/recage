@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "name": "recage-example-map",
+  "version": "1.0.0",
+  "description": "",
+  "main": "render.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify -s recage -e render.js > browser.js",
+    "postinstall": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "browserify": "^13.0.1"
+  },
+  "dependencies": {
+    "file-component": "^0.1.0",
+    "recage": "*"
+  }
+}
