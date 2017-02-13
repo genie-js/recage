@@ -1,6 +1,6 @@
 const Struct = require('awestruct')
 const ct = require('./types')
-const playerStats = require('./player-stats')
+const resources = require('./resources')
 
 const t = Struct.types
 
@@ -78,31 +78,26 @@ const mapData = Struct({
 const player = Struct({
   diploFrom: t.array('../playersCount', t.int8),
   diploTo: t.array(9, t.int8),
-  u0: t.buffer(5 + 24 + 2),
+  u0: t.buffer(34),
   name: ct.string(t.int16),
-  u1: t.int8,
-  civHeaderLen: t.int32, // 198
-  u2: t.int8,
-  civHeader: playerStats,
+  u1: t.int8, // const 22?
+  resourcesCount: t.int32,
+  u2: t.int8, // const 33?
+  resources: resources,
   u3: t.int8,
-  u4: t.array(2, t.float),
+  camera: Struct({
+    x: t.float,
+    y: t.float
+  }),
   u5: t.buffer(9),
   civilization: t.int8,
   u6: t.buffer(3),
   color: t.int8,
   // 455
-  u7: t.buffer((struct) => 629 - struct.civHeaderLen + 41 - 1 - 8 - 9 - 1 - 3 - 1),
-  position: Struct({
-    x: t.float,
-    y: t.float
-  }),
-  u11: t.buffer(9),
-  civilization2: t.int8,
-  u12: t.buffer(3),
-  color2: t.int8,
-  u8: t.buffer((struct) => 4183 - (629 - struct.civHeaderLen + 41 - 1 - 8 - 9 - 1 - 3 - 1) - 8 - 10 - 4),
+  u7: t.buffer((s) => s.$parent.playersCount + 70),
+  u8: t.buffer(792),
   pad: t.buffer(41249),
-  pad2: t.buffer(({ $parent }) => $parent.mapSize.x * $parent.mapSize.y)
+  pad2: t.buffer((s) => s.$parent.mapData.size.x * s.$parent.mapData.size.y)
 })
 
 exports.header = Struct({
