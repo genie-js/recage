@@ -1,7 +1,7 @@
 {
   "name": "recage",
   "description": "Age of Empires 2 Recorded Game parser in Node.js",
-  "version": "0.0.2-alpha",
+  "version": "0.1.0",
   "main": "./lib/RecordedGame",
   "author": "Renée Kooi <renee@kooi.me>",
   "repository": "goto-bus-stop/recage",
