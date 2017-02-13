@@ -1,6 +1,8 @@
-import Struct, { types as t } from 'awestruct'
-import * as ct from './types'
-import playerStats from './player-stats'
+const Struct = require('awestruct')
+const ct = require('./types')
+const playerStats = require('./player-stats')
+
+const t = Struct.types
 
 const stringTable = Struct({
   u0: t.int16, // 5000, max strings?
@@ -10,7 +12,7 @@ const stringTable = Struct({
   u2: t.buffer(6)
 })
 
-export const header = Struct({
+exports.header = Struct({
   version: t.char(8),
   subVersion: t.float,
   includeAi: ct.longBool,
@@ -82,7 +84,7 @@ export const header = Struct({
   u15: t.buffer((struct) => struct.u14 * 27 + 4 + 3)
 })
 
-export const player = Struct({
+exports.player = Struct({
   diploFrom: t.array('../playersCount', t.int8),
   diploTo: t.array(9, t.int8),
   u0: t.buffer(5 + 24 + 2),

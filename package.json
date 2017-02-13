@@ -11,20 +11,14 @@
     "concat-stream": "^1.4.7"
   },
   "devDependencies": {
-    "babel-preset-latest": "^6.22.0",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
-    "gulp-newer": "^1.1.0",
-    "gulp-plumber": "^1.1.0",
-    "gulp-util": "^3.0.7",
-    "gulp-watch": "^4.3.5",
+    "buble": "^0.15.2",
     "standard": "^8.0.0",
-    "through2": "^2.0.1"
+    "watch": "^1.0.1"
   },
   "scripts": {
     "prepublish": "npm run build",
     "test": "standard src/**/*.js gulpfile.js",
-    "build": "gulp build",
-    "watch": "gulp watch"
+    "build": "buble src -o lib",
+    "watch": "watch 'buble src -o lib && echo ok' src"
   }
 }

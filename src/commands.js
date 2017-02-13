@@ -1,6 +1,7 @@
-import Struct, { types as t } from 'awestruct'
-import * as ct from './types'
+const Struct = require('awestruct')
+const ct = require('./types')
 
+const t = Struct.types
 const objectList = t.array('selectedCount', t.int32)
 
 function Command (name, shape) {
@@ -10,7 +11,7 @@ function Command (name, shape) {
 }
 
 // 0x00
-export const attack = Command('attack', {
+exports.attack = Command('attack', {
   playerId: t.int8,
   u0: t.buffer(2),
   targetId: t.int32,
@@ -22,13 +23,13 @@ export const attack = Command('attack', {
 })
 
 // 0x01
-export const stop = Command('stop', {
+exports.stop = Command('stop', {
   selectedCount: t.int8,
   units: t.array('selectedCount', t.int32)
 })
 
 // 0x02
-export const x02 = Command('x02', {
+exports.x02 = Command('x02', {
   u0: t.buffer(3),
   u1: t.int32,
   u2: t.int32,
@@ -40,7 +41,7 @@ export const x02 = Command('x02', {
 })
 
 // 0x03
-export const move = Command('move', {
+exports.move = Command('move', {
   playerId: t.int8,
   u0: t.buffer(2),
   targetId: t.buffer(4),
@@ -52,7 +53,7 @@ export const move = Command('move', {
 })
 
 // 0x0a
-export const x0a = Command('x0a', {
+exports.x0a = Command('x0a', {
   // ???
   u0: t.int8,
   u1: t.int8,
@@ -71,14 +72,14 @@ export const x0a = Command('x0a', {
 })
 
 // 0x0b
-export const resign = Command('resign', {
+exports.resign = Command('resign', {
   playerId: t.int8,
   playerNum: t.int8,
   u0: t.int8
 })
 
 // 0x10
-export const waypoint = Command('waypoint', {
+exports.waypoint = Command('waypoint', {
   // ???
   u0: t.int8,
   u1: t.uint8,
@@ -88,14 +89,14 @@ export const waypoint = Command('waypoint', {
 })
 
 // 0x12
-export const stance = Command('stance', {
+exports.stance = Command('stance', {
   selectedCount: t.int8,
   stance: t.int8,
   units: objectList
 })
 
 // 0x13
-export const guard = Command('guard', {
+exports.guard = Command('guard', {
   u0: t.buffer(2),
   selectedCount: t.int32,
   target: t.int32,
@@ -103,7 +104,7 @@ export const guard = Command('guard', {
 })
 
 // 0x14
-export const follow = Command('follow', {
+exports.follow = Command('follow', {
   selectedCount: t.int8,
   u0: t.buffer(2),
   target: t.int32,
@@ -111,12 +112,12 @@ export const follow = Command('follow', {
 })
 
 // 0x15
-export const patrol = Command('patrol', {
+exports.patrol = Command('patrol', {
   // ???
 })
 
 // 0x17
-export const formation = Command('formation', {
+exports.formation = Command('formation', {
   selectedCount: t.int8,
   u0: t.buffer(2),
   formation: t.int32,
@@ -124,23 +125,23 @@ export const formation = Command('formation', {
 })
 
 // 0x18
-export const save = Command('save', {
+exports.save = Command('save', {
   // ???
 })
 
 // 0x22
-export const x22 = Command('x22', {
+exports.x22 = Command('x22', {
   // ???
 })
 
 // 0x35
-export const x35 = Command('x35', {
+exports.x35 = Command('x35', {
   // ???
   // ai related?
 })
 
 // 0x64
-export const aiTrain = Command('aiTrain', {
+exports.aiTrain = Command('aiTrain', {
   u0: t.buffer(3),
   building: t.int32,
   unitType: t.int16,
@@ -148,7 +149,7 @@ export const aiTrain = Command('aiTrain', {
 })
 
 // 0x65
-export const research = Command('research', {
+exports.research = Command('research', {
   u0: t.buffer(3),
   building: t.int32,
   player: t.int16,
@@ -157,7 +158,7 @@ export const research = Command('research', {
 })
 
 // 0x66
-export const build = Command('build', {
+exports.build = Command('build', {
   builderCount: t.int8,
   player: t.int16,
   x: t.float,
@@ -168,7 +169,7 @@ export const build = Command('build', {
 })
 
 // 0x67
-export const speed = Command('speed', {
+exports.speed = Command('speed', {
   u0: t.buffer(4),
   speed: t.float,
   u1: t.buffer(4),
@@ -176,27 +177,27 @@ export const speed = Command('speed', {
 })
 
 // 0x69
-export const wall = Command('wall', {
+exports.wall = Command('wall', {
   // ???
   // AI only, probably
 })
 
 // 0x6a
-export const del = Command('del', {
+exports.del = Command('del', {
   u0: t.buffer(3),
   target: t.int32,
   player: t.int32
 })
 
 // 0x6b
-export const attackGround = Command('attackGround', {
+exports.attackGround = Command('attackGround', {
   selectedCount: t.int8,
   u0: t.buffer(2)
   // ???
 })
 
 // 0x6c
-export const tribute = Command('tribute', {
+exports.tribute = Command('tribute', {
   from: t.int8,
   to: t.int8,
   resource: t.int8,
@@ -205,12 +206,12 @@ export const tribute = Command('tribute', {
 })
 
 // 0x6e
-export const x6e = Command('x6e', {
+exports.x6e = Command('x6e', {
   // ???
 })
 
 // 0x6f
-export const unload = Command('unload', {
+exports.unload = Command('unload', {
   player: t.int8,
   u0: t.buffer(2),
   u1: t.float,
@@ -222,7 +223,7 @@ export const unload = Command('unload', {
 })
 
 // 0x73
-export const flare = Command('flare', {
+exports.flare = Command('flare', {
   u0: t.buffer(3),
   u1: t.buffer(4),
   receivers: t.array(9, t.int8),
@@ -235,7 +236,7 @@ export const flare = Command('flare', {
 })
 
 // 0x75
-export const garrison = Command('garrison', {
+exports.garrison = Command('garrison', {
   // ???
   selectedCount: t.int8,
   u0: t.buffer(2),
@@ -248,7 +249,7 @@ export const garrison = Command('garrison', {
 })
 
 // 0x77
-export const train = Command('train', {
+exports.train = Command('train', {
   u0: t.buffer(3),
   building: t.int32,
   unitType: t.int16,
@@ -256,7 +257,7 @@ export const train = Command('train', {
 })
 
 // 0x78
-export const gatherPoint = Command('gatherPoint', {
+exports.gatherPoint = Command('gatherPoint', {
   selectedCount: t.int8,
   u0: t.buffer(2),
   target: t.int32, // 0xffffffff if there is no target object (i.e. the target is a location)
@@ -267,7 +268,7 @@ export const gatherPoint = Command('gatherPoint', {
 })
 
 // 0x7a
-export const sell = Command('sell', {
+exports.sell = Command('sell', {
   player: t.int8,
   resource: t.int8,
   // market commands store the amount as a byte containing 1 or 5 for 100 and 500 (shift-click)
@@ -276,7 +277,7 @@ export const sell = Command('sell', {
 })
 
 // 0x7b
-export const buy = Command('buy', {
+exports.buy = Command('buy', {
   player: t.int8,
   resource: t.int8,
   amount: t.int8.mapRead((amount) => amount * 100),
@@ -284,21 +285,21 @@ export const buy = Command('buy', {
 })
 
 // 0x7f
-export const bell = Command('bell', {
+exports.bell = Command('bell', {
   u0: t.buffer(3),
   building: t.int32,
   active: t.int32 // whether the bell turns "on" or "off", 1 if villagers enter tc, 0 if villagers exit
 })
 
 // 0x80
-export const ungarrison = Command('ungarrison', {
+exports.ungarrison = Command('ungarrison', {
   u0: t.buffer(3),
   building: t.int32
 })
 
 // 0xff
 // UserPatch multiplayer postgame data
-export const postgame = Command('postgame', {
+exports.postgame = Command('postgame', {
   u0: t.buffer(3),
   scenarioFilename: t.string(32).mapRead((n) => n.trim()),
   u1: t.buffer(4),

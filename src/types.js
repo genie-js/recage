@@ -1,10 +1,8 @@
-import Struct, {
-  Type as StructType,
-  types as t
-} from 'awestruct'
+const Struct = require('awestruct')
+const t = Struct.types
 
-export function string (sizeType) {
-  return StructType({
+exports.string = function string (sizeType) {
+  return Struct.Type({
     read (opts) {
       const size = sizeType.read(opts)
       return t.char(size).read(opts)
@@ -14,8 +12,8 @@ export function string (sizeType) {
   })
 }
 
-export function buf (size) {
-  return StructType({
+exports.buf = function buf (size) {
+  return Struct.Type({
     read (opts) {
       const length = Struct.getValue(opts.struct, size)
       const result = opts.buf.slice(opts.offset, opts.offset + length)
@@ -27,12 +25,12 @@ export function buf (size) {
   })
 }
 
-export const bool = t.int8.mapRead((i) => i !== 0)
-export const longBool = t.int32.mapRead((i) => i !== 0)
+exports.bool = t.int8.mapRead((i) => i !== 0)
+exports.longBool = t.int32.mapRead((i) => i !== 0)
 
-export const matrix = (x, y, type) => t.array(x, t.array(y, type))
+exports.matrix = (x, y, type) => t.array(x, t.array(y, type))
 
-export const tile = Struct({
+exports.tile = Struct({
   terrain: t.int8,
   elevation: t.int8
 })

@@ -1,15 +1,11 @@
-import fs from 'fs'
-import zlib from 'zlib'
-import concat from 'concat-stream'
-import { Readable, PassThrough } from 'stream'
-import * as h from './header'
-import BodyParser from './BodyParser'
+const fs = require('fs')
+const zlib = require('zlib')
+const concat = require('concat-stream')
+const { Readable, PassThrough } = require('stream')
+const h = require('./header')
+const BodyParser = require('./BodyParser')
 
-export default function (path) {
-  return new RecordedGame(path)
-}
-
-export class RecordedGame {
+class RecordedGame {
   constructor (path) {
     if (typeof path === 'string') {
       this.path = path
@@ -114,3 +110,8 @@ export class RecordedGame {
     return b
   }
 }
+
+module.exports = function (path) {
+  return new RecordedGame(path)
+}
+module.exports.RecordedGame = RecordedGame

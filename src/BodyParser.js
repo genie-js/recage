@@ -1,5 +1,5 @@
-import { Transform } from 'stream'
-import * as commands from './commands'
+const { Transform } = require('stream')
+const commands = require('./commands')
 
 const UNKNOWN_COMMAND = {}
 const unknown = () => UNKNOWN_COMMAND
@@ -41,10 +41,6 @@ const commandMap = {
   0xff: commands.postgame
 }
 
-export default function (options) {
-  return new BodyParser(options)
-}
-
 /**
  * Recorded Game Body parser stream. Receives body data, outputs the commands.
  *
@@ -52,7 +48,7 @@ export default function (options) {
  *    `saveSync`: Whether to output sync packets. There can be a lot of these, and they
  *                may not be very interesting. Defaults to `true`.
  */
-export class BodyParser extends Transform {
+class BodyParser extends Transform {
   constructor (options = {}) {
     super({
       writableObjectMode: false,
@@ -214,3 +210,8 @@ export class BodyParser extends Transform {
     cb()
   }
 }
+
+module.exports = function (options) {
+  return new BodyParser(options)
+}
+module.exports.BodyParser = BodyParser

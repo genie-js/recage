@@ -1,5 +1,5 @@
-import Struct, { types as t } from 'awestruct'
-const { float } = t
+const Struct = require('awestruct')
+const { float } = Struct.types
 
 const resources = Struct({
   food: float,
@@ -8,7 +8,7 @@ const resources = Struct({
   gold: float
 })
 
-export default Struct({
+module.exports = Struct({
   resources: resources,
   headroom: float,
   u0: float,
