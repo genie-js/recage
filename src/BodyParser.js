@@ -53,9 +53,6 @@ export default function (options) {
  *                may not be very interesting. Defaults to `true`.
  */
 export class BodyParser extends Transform {
-  buffer = null
-  currentTime = 0
-
   constructor (options = {}) {
     super({
       writableObjectMode: false,
@@ -64,6 +61,9 @@ export class BodyParser extends Transform {
 
     this.options = options
     this.saveSync = options.saveSync != null ? options.saveSync : true
+
+    this.buffer = null
+    this.currentTime = 0
   }
 
   /**

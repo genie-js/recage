@@ -10,8 +10,6 @@ export default function (path) {
 }
 
 export class RecordedGame {
-  fd = null
-
   constructor (path) {
     if (typeof path === 'string') {
       this.path = path
@@ -20,6 +18,8 @@ export class RecordedGame {
       this.headerLen = path.readInt32LE(0)
       this.nextHeader = path.readInt32LE(4)
     }
+
+    this.fd = null
   }
 
   /**
