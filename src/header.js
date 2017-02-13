@@ -5,86 +5,77 @@ const playerStats = require('./player-stats')
 const t = Struct.types
 
 const stringTable = Struct({
-  u0: t.int16, // 5000, max strings?
+  maxStrings: t.int16,
   numStrings: t.int16,
   u1: t.int32,
   strings: t.array('numStrings', ct.string(t.int32)),
   u2: t.buffer(6)
 })
 
-exports.header = Struct({
-  version: t.char(8),
-  subVersion: t.float,
-  includeAi: ct.longBool,
-  ai: t.if('includeAi', Struct({
-    stringTable: stringTable,
-    ai: t.array(8, Struct({
-      u0: t.int32,
-      seq: t.int32,
-      maxRules: t.int16,
-      numRules: t.int16,
-      u1: t.int32,
-      rules: t.array('numRules', Struct({
-        u0: t.buffer(12),
-        numFacts: 'int8',
-        numFactsActions: 'int8',
-        zero: t.int16,
-        data: t.array(16, Struct({
-          type: t.int32,
-          id: t.int16,
-          u0: t.int16,
-          params: t.array(4, t.int32)
-        }))
+const ai = Struct({
+  stringTable: stringTable,
+  scripts: t.array(8, Struct({
+    u0: t.int32,
+    seq: t.int32,
+    maxRules: t.int16,
+    numRules: t.int16,
+    u1: t.int32,
+    rules: t.array('numRules', Struct({
+      u0: t.buffer(12),
+      numFacts: t.int8,
+      numFactsActions: t.int8,
+      zero: t.int16,
+      data: t.array(16, Struct({
+        type: t.int32,
+        id: t.int16,
+        u0: t.int16,
+        params: t.array(4, t.int32)
       }))
-    })),
-    u0: t.buffer(104),
-    timers: t.array(8, t.array(10, t.int32)),
-    sharedGoals: t.array(256, t.int32),
-    zero: t.buffer(4096)
+    }))
   })),
-  u0: 'uint32',
-  gameSpeed1: t.int32,
-  u1: t.int32,
-  gameSpeed2: t.int32,
-  u2: t.float,
-  u3: t.int32,
-  u4: t.buffer(21),
-  owner: t.int16,
-  playersCount: t.int8,
-  u5: t.int16,
-  gameMode: t.int16,
-  u6: t.buffer(12),
-  u7: t.buffer(14),
-  u8: t.array(8, t.int32),
-  mapSize: Struct({
+  u0: t.buffer(104),
+  timers: t.array(8, t.array(10, t.int32)),
+  sharedGoals: t.array(256, t.int32),
+  zero: t.buffer(4096)
+})
+
+const mapData = Struct({
+  size: Struct({
     x: t.int32,
     y: t.int32
   }),
-  u9len: t.int32, // AI only?
-  u9: t.array('u9len', Struct({
+  zonesCount: t.int32,
+  zones: t.array('zonesCount', Struct({
     u0: t.buffer(255),
     u1: t.array(255, t.int32),
-    u2: ct.matrix('../mapSize.y', '../mapSize.x', t.int8),
+    u2: ct.matrix('../size.y', '../size.x', t.int8),
     u3len: t.int32,
     u3: t.array('u3len', t.float),
     u4: t.int32
   })),
-  u10: t.buffer(2),
-  map: ct.matrix('mapSize.x', 'mapSize.y', ct.tile),
-  u11_1: t.buffer(120),
-  mapSize1: Struct({
+  allVisible: t.bool,
+  fogOfWar: t.bool,
+  terrain: ct.matrix('size.x', 'size.y', ct.tile),
+  obstructions: Struct({
+    dataCount: t.int32,
+    u0: t.int32,
+    u1: t.array('dataCount', t.int32),
+    u2: t.array('dataCount', Struct({
+      obstructionsCount: t.int32,
+      obstructionsData: t.array('obstructionsCount', t.buffer(8))
+    }))
+  }),
+  visibilityMapSize: Struct({
     x: t.int32,
     y: t.int32
   }),
-  u12: ct.matrix('mapSize.x', 'mapSize.y', t.int32),
-  u13: t.int32,
-  u14: t.int32,
-  // RecAnalyst does not have this +3, but has other magic numbers in the GAIA player reading code
-  // This *probably* ends up the same.
-  u15: t.buffer((struct) => struct.u14 * 27 + 4 + 3)
+  visibility: ct.matrix('visibilityMapSize.x', 'visibilityMapSize.y', t.int32),
+  u0: t.int32,
+  u1Count: t.int32,
+  u1: t.array('u1Count', t.buffer(27))
 })
 
-exports.player = Struct({
+const player = Struct({
   diploFrom: t.array('../playersCount', t.int8),
   diploTo: t.array(9, t.int8),
   u0: t.buffer(5 + 24 + 2),
@@ -113,3 +104,29 @@ exports.player = Struct({
   pad: t.buffer(41249),
   pad2: t.buffer(({ $parent }) => $parent.mapSize.x * $parent.mapSize.y)
 })
+
+exports.header = Struct({
+  version: t.char(8),
+  subVersion: t.float,
+  includeAi: ct.longBool,
+  ai: t.if('includeAi', ai),
+  u0: t.uint32,
+  gameSpeed1: t.int32,
+  u1: t.int32,
+  gameSpeed2: t.int32,
+  u2: t.float,
+  u3: t.int32,
+  u4: t.buffer(21),
+  owner: t.int16,
+  playersCount: t.int8,
+  instantBuildingEnabled: t.bool,
+  cheatsEnabled: t.bool,
+  gameMode: t.int16,
+  u6: t.buffer(12),
+  u7: t.buffer(14),
+  u8: t.array(8, t.int32),
+  mapData,
+  u13: t.int32, // what is this? 10060 in AoK recorded games, 40600 in AoC and on…
+})
+
+exports.player = player
