@@ -8,7 +8,8 @@
   "homepage": "https://goto-bus-stop.github.io/recage",
   "dependencies": {
     "awestruct": "^0.12.0",
-    "concat-stream": "^1.4.7"
+    "concat-stream": "^1.4.7",
+    "safe-buffer": "^5.0.1"
   },
   "devDependencies": {
     "buble": "^0.15.2",

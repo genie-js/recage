@@ -1,3 +1,4 @@
+const { Buffer } = require('safe-buffer')
 const { Transform } = require('stream')
 const commands = require('./commands')
 
