@@ -121,7 +121,7 @@ exports.header = Struct({
   u7: t.buffer(14),
   u8: t.array(8, t.int32),
   mapData,
-  u13: t.int32, // what is this? 10060 in AoK recorded games, 40600 in AoC and on…
+  u13: t.int32 // what is this? 10060 in AoK recorded games, 40600 in AoC and on…
 })
 
 exports.player = player

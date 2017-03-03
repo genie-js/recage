@@ -1,3 +1,4 @@
+const { Buffer } = require('safe-buffer')
 const fs = require('fs')
 const zlib = require('zlib')
 const concat = require('concat-stream')
@@ -38,7 +39,7 @@ class RecordedGame {
     fs.open(this.path, 'r', (e, fd) => {
       if (e) return cb(e)
       this.fd = fd
-      const headerLenBuf = Buffer(8)
+      const headerLenBuf = Buffer.alloc(8)
       fs.read(fd, headerLenBuf, 0, 8, 0, (e) => {
         if (e) return cb(e)
         this.headerLen = headerLenBuf.readInt32LE(0)
