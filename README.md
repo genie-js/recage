@@ -1,5 +1,7 @@
 # recage
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/goto-bus-stop/recage.svg)](https://greenkeeper.io/)
+
 Age of Empires 2 Recorded Game parser in Node.js. Provides a lowish-level
 interface to reading recorded game file headers and commands.
 
