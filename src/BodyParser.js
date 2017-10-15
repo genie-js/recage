@@ -1,46 +1,29 @@
 const { Buffer } = require('safe-buffer')
 const { Transform } = require('stream')
-const commands = require('./commands')
+const Struct = require('awestruct')
+const actions = require('./actions')
 
 const UNKNOWN_COMMAND = {}
 const unknown = () => UNKNOWN_COMMAND
 
-const commandMap = {
-  0x00: commands.attack,
-  0x01: commands.stop,
-  0x02: commands.x02,
-  0x03: commands.move,
-  0x0a: commands.x0a,
-  0x0b: commands.resign,
-  0x10: commands.waypoint,
-  0x12: commands.stance,
-  0x13: commands.guard,
-  0x14: commands.follow,
-  0x15: commands.patrol,
-  0x17: commands.formation,
-  0x18: commands.save,
-  0x22: (commands.x22, unknown),
-  0x35: (commands.x35, unknown),
-  0x64: commands.aiTrain,
-  0x65: commands.research,
-  0x66: commands.build,
-  0x67: commands.speed,
-  0x69: commands.wall,
-  0x6a: commands.del,
-  0x6b: commands.attackGround,
-  0x6c: commands.tribute,
-  0x6e: (commands.x6e, unknown),
-  0x6f: commands.unload,
-  0x73: commands.flare,
-  0x75: commands.garrison,
-  0x77: commands.train,
-  0x78: commands.gatherPoint,
-  0x7a: commands.sell,
-  0x7b: commands.buy,
-  0x7f: commands.bell,
-  0x80: commands.ungarrison,
-  0xff: commands.postgame
-}
+const actionCodecs = {}
+Object.keys(actions).forEach((name) => {
+  var actionCodec = actions[name]
+  actionCodecs[actionCodec.id] = actionCodec
+})
+
+const Action = Struct.Type({
+  read (opts) {
+    var actionId = opts.buf.readUInt8(opts.offset++)
+    if (actionCodecs[actionId]) {
+      var action = actionCodecs[actionId].read(opts)
+      return Object.assign(action, {
+        actionId,
+        actionName: actionCodecs[actionId].actionName
+      })
+    }
+  }
+})
 
 /**
  * Recorded Game Body parser stream. Receives body data, outputs the commands.
@@ -177,17 +160,16 @@ class BodyParser extends Transform {
           offs -= 8
           break
         }
-        command = buf.readUInt8(offs)
-        offs += 1
-        if (command in commandMap) {
-          const value = commandMap[command](buf.slice(offs))
+
+        var action = Action.read({ buf, offset: offs })
+        if (action) {
           this.push({
-            type: 'command',
+            type: 'action',
             time: this.currentTime,
-            command: command,
-            name: commandMap[command].commandName,
+            id: action.actionId,
+            name: action.actionName,
             length: length,
-            data: value
+            data: action
           })
         } else {
           this.push({
@@ -198,7 +180,8 @@ class BodyParser extends Transform {
             buf: buf.slice(offs, offs + length)
           })
         }
-        offs += length + 3
+        offs += length
+        offs += 4
       } else {
         throw new Error('Unknown odType: ' + odType)
       }

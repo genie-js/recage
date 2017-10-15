@@ -34,3 +34,17 @@ exports.tile = Struct({
   terrain: t.int8,
   elevation: t.int8
 })
+
+exports.const = function constant (bytes) {
+  const length = bytes.length
+  return Struct.Type({
+    read (opts) {
+      opts.offset += length
+      return bytes
+    },
+    write (opts) {
+      opts.buf.write(bytes, opts.offset, length)
+      opts.offset += length
+    }
+  })
+}

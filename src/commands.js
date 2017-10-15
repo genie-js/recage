@@ -29,7 +29,7 @@ exports.stop = Command('stop', {
 })
 
 // 0x02
-exports.x02 = Command('x02', {
+exports.work = Command('work', {
   u0: t.buffer(3),
   u1: t.int32,
   u2: t.int32,
@@ -53,7 +53,7 @@ exports.move = Command('move', {
 })
 
 // 0x0a
-exports.x0a = Command('x0a', {
+exports.aiOrder = Command('aiOrder', {
   // ???
   u0: t.int8,
   u1: t.int8,
@@ -89,9 +89,9 @@ exports.waypoint = Command('waypoint', {
 })
 
 // 0x12
-exports.stance = Command('stance', {
+exports.unitAiState = Command('unitAiState', {
   selectedCount: t.int8,
-  stance: t.int8,
+  state: t.int8,
   units: objectList
 })
 
@@ -125,19 +125,20 @@ exports.formation = Command('formation', {
 })
 
 // 0x18
-exports.save = Command('save', {
+exports.breakFormation = Command('breakFormation', {
   // ???
 })
 
 // 0x22
-exports.x22 = Command('x22', {
+exports.attackMoveTarget = Command('attackMoveTarget', {
   // ???
 })
 
 // 0x35
-exports.x35 = Command('x35', {
+exports.aiCommand = Command('aiCommand', {
   // ???
   // ai related?
+  // UserPatch only
 })
 
 // 0x64
@@ -206,7 +207,7 @@ exports.tribute = Command('tribute', {
 })
 
 // 0x6e
-exports.x6e = Command('x6e', {
+exports.repair = Command('repair', {
   // ???
 })
 
@@ -285,14 +286,14 @@ exports.buy = Command('buy', {
 })
 
 // 0x7f
-exports.bell = Command('bell', {
+exports.townBell = Command('townBell', {
   u0: t.buffer(3),
   building: t.int32,
   active: t.int32 // whether the bell turns "on" or "off", 1 if villagers enter tc, 0 if villagers exit
 })
 
 // 0x80
-exports.ungarrison = Command('ungarrison', {
+exports.backToWork = Command('backToWork', {
   u0: t.buffer(3),
   building: t.int32
 })
