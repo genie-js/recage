@@ -2,7 +2,8 @@ const { Buffer } = require('safe-buffer')
 const fs = require('fs')
 const zlib = require('zlib')
 const concat = require('concat-stream')
-const { Readable, PassThrough } = require('stream')
+const fromBuffer = require('from2-buffer')
+const through = require('through2')
 const h = require('./header')
 const BodyParser = require('./BodyParser')
 
@@ -26,12 +27,7 @@ class RecordedGame {
     if (this.path) {
       return fs.createReadStream(this.path, { fd: this.fd, start, end })
     } else if (this.buf) {
-      var s = Readable()
-      s._read = () => {
-        s.push(this.buf.slice(start, end))
-        s.push(null)
-      }
-      return s
+      return fromBuffer(this.buf.slice(start, end))
     }
   }
 
@@ -53,7 +49,7 @@ class RecordedGame {
     if (this.headerLen) {
       return this.sliceStream(8, this.headerLen + 8)
     }
-    const stream = PassThrough()
+    const stream = through()
     this.open((e, fd) => {
       if (e) {
         stream.emit('error', e)
@@ -68,7 +64,7 @@ class RecordedGame {
     if (this.headerLen) {
       return this.sliceStream(this.headerLen)
     }
-    const stream = PassThrough()
+    const stream = through()
     this.open((e, fd) => {
       if (e) {
         stream.emit('error', e)
