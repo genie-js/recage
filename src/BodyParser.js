@@ -1,5 +1,5 @@
 const { Buffer } = require('safe-buffer')
-const { Transform } = require('stream')
+const through = require('through2')
 const Struct = require('awestruct')
 const actions = require('./actions')
 
@@ -32,61 +32,47 @@ const Action = Struct.Type({
  *    `saveSync`: Whether to output sync packets. There can be a lot of these, and they
  *                may not be very interesting. Defaults to `true`.
  */
-class BodyParser extends Transform {
-  constructor (options = {}) {
-    super({
-      writableObjectMode: false,
-      readableObjectMode: true
-    })
 
-    this.options = options
-    this.saveSync = options.saveSync != null ? options.saveSync : true
+function BodyParser (options = {}) {
+  var saveSync = options.saveSync != null ? options.saveSync : true
+  var buffer = null
+  var currentTime = null
 
-    this.buffer = null
-    this.currentTime = 0
-  }
+  return through({ writableObjectMode: false, readableObjectMode: true }, onwrite)
 
-  /**
-   * Parses incoming body data.
-   *
-   * @param {Buffer} buf Data chunk.
-   * @param {string} enc Encoding. (Not used.)
-   * @param {function()} cb Function to call after processing this chunk.
-   * @private
-   */
-  _transform (buf, enc, cb) {
-    if (this.buffer) {
-      buf = Buffer.concat([ this.buffer, buf ])
-      this.buffer = null
+  function onwrite (chunk, enc, next) {
+    if (buffer) {
+      chunk = Buffer.concat([ buffer, chunk ])
+      buffer = null
     }
 
     var offs = 0
-    var size = buf.length
+    var size = chunk.length
 
     var odType
     var command
 
     while (offs < size - 8) {
-      odType = buf.readInt32LE(offs)
+      odType = chunk.readInt32LE(offs)
       offs += 4
       if (odType === 4 || odType === 3) {
-        command = buf.readInt32LE(offs)
+        command = chunk.readInt32LE(offs)
         offs += 4
         if (command === 0x01f4) {
           this.push({
             type: 'start',
             time: 0,
-            buf: buf.slice(offs, offs + 20)
+            buf: chunk.slice(offs, offs + 20)
           })
           offs += 20
         } else if (command === -1) {
-          var chatLength = buf.readUInt32LE(offs)
+          var chatLength = chunk.readUInt32LE(offs)
           offs += 4
           this.push({
             type: 'chat',
-            time: this.currentTime,
+            time: currentTime,
             length: chatLength,
-            message: buf.toString('utf8', offs, offs + chatLength)
+            message: chunk.toString('utf8', offs, offs + chatLength)
           })
           offs += chatLength
         } else {
@@ -104,29 +90,29 @@ class BodyParser extends Transform {
         // compared to this
         var pack = {}
         var backtrack = offs - 4
-        pack.time = buf.readInt32LE(offs)
+        pack.time = chunk.readInt32LE(offs)
         offs += 4
-        pack.u0 = buf.readInt32LE(offs)
+        pack.u0 = chunk.readInt32LE(offs)
         offs += 4
         if (pack.u0 === 0) {
           if (offs > size - 28) {
             offs = backtrack
             break
           }
-          if (this.saveSync) {
-            pack.u1 = buf.readInt32LE(offs)
+          if (saveSync) {
+            pack.u1 = chunk.readInt32LE(offs)
             offs += 4
-            pack.u2 = buf.slice(offs, offs + 4)
+            pack.u2 = chunk.slice(offs, offs + 4)
             offs += 4
-            pack.u3 = buf.readInt32LE(offs)
+            pack.u3 = chunk.readInt32LE(offs)
             offs += 4
-            pack.u4 = buf.readInt32LE(offs)
+            pack.u4 = chunk.readInt32LE(offs)
             offs += 4
-            pack.u5 = buf.readInt32LE(offs)
+            pack.u5 = chunk.readInt32LE(offs)
             offs += 4
-            pack.u6 = buf.slice(offs, offs + 4)
+            pack.u6 = chunk.slice(offs, offs + 4)
             offs += 4
-            pack.u7 = buf.readInt32LE(offs)
+            pack.u7 = chunk.readInt32LE(offs)
             offs += 4
           } else {
             offs += 28
@@ -136,36 +122,36 @@ class BodyParser extends Transform {
           offs = backtrack
           break
         }
-        if (this.saveSync) {
-          pack.x = buf.readFloatLE(offs)
+        if (saveSync) {
+          pack.x = chunk.readFloatLE(offs)
           offs += 4
-          pack.y = buf.readFloatLE(offs)
+          pack.y = chunk.readFloatLE(offs)
           offs += 4
-          pack.player = buf.readInt32LE(offs)
+          pack.player = chunk.readInt32LE(offs)
           offs += 4
 
           this.push({
             type: 'sync',
-            time: this.currentTime,
+            time: currentTime,
             data: pack
           })
         } else {
           offs += 12
         }
-        this.currentTime += pack.time
+        currentTime += pack.time
       } else if (odType === 1) {
-        var length = buf.readInt32LE(offs)
+        var length = chunk.readInt32LE(offs)
         offs += 4
         if (offs + length + 3 >= size) {
           offs -= 8
           break
         }
 
-        var action = Action.read({ buf, offset: offs })
+        var action = Action.read({ buf: chunk, offset: offs })
         if (action) {
           this.push({
             type: 'action',
-            time: this.currentTime,
+            time: currentTime,
             id: action.actionId,
             name: action.actionName,
             length: length,
@@ -174,10 +160,10 @@ class BodyParser extends Transform {
         } else {
           this.push({
             type: 'unknown',
-            time: this.currentTime,
+            time: currentTime,
             command: command,
             length: length,
-            buf: buf.slice(offs, offs + length)
+            buf: chunk.slice(offs, offs + length)
           })
         }
         offs += length
@@ -188,14 +174,11 @@ class BodyParser extends Transform {
     }
 
     if (offs < size) {
-      this.buffer = buf.slice(offs)
+      buffer = chunk.slice(offs)
     }
 
-    cb()
+    next()
   }
 }
 
-module.exports = function (options) {
-  return new BodyParser(options)
-}
-module.exports.BodyParser = BodyParser
+module.exports = BodyParser
