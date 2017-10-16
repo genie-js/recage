@@ -279,7 +279,7 @@ exports.build = makeActionCodec(0x66, 'build', [
   ['x', t.float],
   ['y', t.float],
   ['buildingId', t.int32],
-  t.int32,
+  ['frame', t.int32],
   ['builders', t.array('builderCount', t.int32)]
 ])
 
@@ -404,6 +404,11 @@ exports.tribeGiveAttribute = makeActionCodec(0x6c, 'tribeGiveAttribute', [
 
 // 0x6d
 exports.tradeAttribute = makeActionCodec(0x6d, 'tradeAttribute', [
+  // Seems unused, unsure what this is supposed to do
+  ['selectedCount', t.int8],
+  t.skip(2),
+  ['attribute', t.int32],
+  ['units', objectList]
 ])
 
 // 0x6e
@@ -484,6 +489,9 @@ exports.unitOrder = makeActionCodec(0x75, 'unitOrder', [
 
 // 0x76
 exports.diplomacy = makeActionCodec(0x76, 'diplomacy', [
+  // This action makes demands of a player, in exchange for an alliance
+  // or whatever. I think AI scripts now implement this manually though,
+  // and this action is unused.
 ])
 
 // 0x77
@@ -507,6 +515,8 @@ exports.setGatherPoint = makeActionCodec(0x78, 'setGatherPoint', [
 
 // 0x79
 exports.setRetreatPoint = makeActionCodec(0x79, 'setRetreatPoint', [
+  t.skip(3),
+  ['unitId', t.int32]
 ])
 
 // 0x7a
