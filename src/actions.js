@@ -174,10 +174,11 @@ const patrolWaypoints = Struct([
     return { xs, ys }
   }
 )
+
 exports.patrol = makeActionCodec(0x15, 'patrol', [
   ['selectedCount', t.int8],
   ['waypointsCount', t.int16],
-  ['waypoints', patrolWaypoints]
+  ['waypoints', patrolWaypoints],
   ['units', objectList]
 ])
 
@@ -315,7 +316,7 @@ exports.game = makeActionCodec(0x67, 'game', [
   // Cheat.
   t.if((x) => x.command === 0x06, Struct([
     t.skip(1),
-    ['cheatId', t.int16]
+    ['cheatId', t.int16],
     t.skip(10)
   ])),
 
@@ -373,7 +374,7 @@ exports.buildWall = makeActionCodec(0x69, 'buildWall', [
   t.skip(1),
   ['buildingId', t.int16],
   t.skip(2),
-  t.const([ 0xFF, 0xFF, 0xFF, 0xFF ]),
+  ct.const([ 0xFF, 0xFF, 0xFF, 0xFF ]),
   ['builders', objectList]
 ])
 
