@@ -7,7 +7,7 @@
   "repository": "goto-bus-stop/recage",
   "homepage": "https://goto-bus-stop.github.io/recage",
   "dependencies": {
-    "awestruct": "^0.12.0",
+    "awestruct": "^1.0.0",
     "concat-stream": "^1.4.7",
     "safe-buffer": "^5.0.1"
   },
