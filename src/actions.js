@@ -121,7 +121,7 @@ exports.groupWaypoint = makeActionCodec(0x10, 'groupWaypoint', [
   t.skip(2),
   ['unitId', t.int32],
   ['waypointsCount', t.int8],
-  t.skip(1),
+  t.skip(1)
 ])
 
 // 0x12
@@ -149,7 +149,7 @@ exports.follow = makeActionCodec(0x14, 'follow', [
 
 const patrolWaypoints = Struct([
   ['xs', t.array(10, t.float)],
-  ['ys', t.array(10, t.float)],
+  ['ys', t.array(10, t.float)]
 ]).map(
   // {xs, ys} → [{x, y}]
   function decode ({ xs, ys }) {
@@ -336,7 +336,7 @@ exports.game = makeActionCodec(0x67, 'game', [
 
   // Treason.
   t.if((x) => x.command === 0x0a, Struct([
-    t.skip(13),
+    t.skip(13)
   ])),
 
   // Strategic Numbers.
@@ -457,7 +457,7 @@ exports.flare = makeActionCodec(0x73, 'flare', [
   ['y', t.float],
   ['player', t.int8],
   ['playerNum', t.int8],
-  t.skip(2),
+  t.skip(2)
 ])
 
 // 0x74

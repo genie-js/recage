@@ -3,9 +3,6 @@ const through = require('through2')
 const Struct = require('awestruct')
 const actions = require('./actions')
 
-const UNKNOWN_COMMAND = {}
-const unknown = () => UNKNOWN_COMMAND
-
 const actionCodecs = {}
 Object.keys(actions).forEach((name) => {
   var actionCodec = actions[name]
