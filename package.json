@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "buble": "^0.19.3",
-    "standard": "^10.0.0-beta.0",
+    "standard": "^11.0.0",
     "watch": "^1.0.1"
   },
   "scripts": {
