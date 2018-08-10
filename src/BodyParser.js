@@ -1,26 +1,7 @@
 const { Buffer } = require('safe-buffer')
 const through = require('through2')
 const Struct = require('awestruct')
-const actions = require('./actions')
-
-const actionCodecs = {}
-Object.keys(actions).forEach((name) => {
-  var actionCodec = actions[name]
-  actionCodecs[actionCodec.id] = actionCodec
-})
-
-const Action = Struct.Type({
-  read (opts) {
-    var actionId = opts.buf.readUInt8(opts.offset++)
-    if (actionCodecs[actionId]) {
-      var action = actionCodecs[actionId].read(opts)
-      return Object.assign(action, {
-        actionId,
-        actionName: actionCodecs[actionId].actionName
-      })
-    }
-  }
-})
+const { TriageAction } = require('./actions')
 
 /**
  * Recorded Game Body parser stream. Receives body data, outputs the commands.
@@ -144,7 +125,7 @@ function BodyParser (options = {}) {
           break
         }
 
-        var action = Action.read({ buf: chunk, offset: offs })
+        var action = TriageAction.read({ buf: chunk, offset: offs })
         if (action) {
           this.push({
             type: 'action',

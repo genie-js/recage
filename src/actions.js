@@ -2,17 +2,10 @@ const Struct = require('awestruct')
 const ct = require('./types')
 
 const t = Struct.types
-const objectList = t.array('selectedCount', t.int32)
-
-function makeActionCodec (id, name, shape) {
-  const struct = Struct(shape)
-  struct.id = id
-  struct.actionName = name
-  return struct
-}
+const ObjectList = t.array('selectedCount', t.int32)
 
 // 0x00
-exports.order = makeActionCodec(0x00, 'order', [
+const OrderAction = Struct([
   ['playerNumber', t.int8],
   t.skip(2),
   ['targetId', t.int32],
@@ -20,28 +13,28 @@ exports.order = makeActionCodec(0x00, 'order', [
   ['x', t.float],
   ['y', t.float],
   // if selectedCount == 0xff, the same group is used as in the last command, and no units array is present
-  ['units', t.if((struct) => struct.selectedCount < 0xff, objectList)]
+  ['units', t.if((struct) => struct.selectedCount < 0xff, ObjectList)]
 ])
 
 // 0x01
-exports.stop = makeActionCodec(0x01, 'stop', [
+const StopAction = Struct([
   ['selectedCount', t.int8],
-  ['units', objectList]
+  ['units', ObjectList]
 ])
 
 // 0x02
-exports.work = makeActionCodec(0x02, 'work', [
+const WorkAction = Struct([
   t.skip(3),
   ['target', t.int32],
   ['selectedCount', t.int8],
   t.skip(3),
   ['x', t.float],
   ['y', t.float],
-  ['units', objectList]
+  ['units', ObjectList]
 ])
 
 // 0x03
-exports.move = makeActionCodec(0x03, 'move', [
+const MoveAction = Struct([
   ['playerNumber', t.int8],
   t.skip(2),
   ['targetId', t.int32],
@@ -50,11 +43,11 @@ exports.move = makeActionCodec(0x03, 'move', [
   ['x', t.float],
   ['y', t.float],
   // if selectedCount == 0xff, the same group is used as in the last command, and no units array is present
-  ['units', t.if((struct) => struct.selectedCount < 0xff, objectList)]
+  ['units', t.if((struct) => struct.selectedCount < 0xff, ObjectList)]
 ])
 
 // 0x04
-exports.create = makeActionCodec(0x04, 'create', [
+const CreateAction = Struct([
   t.skip(1),
   ['category', t.uint16],
   ['playerNumber', t.int8],
@@ -65,7 +58,7 @@ exports.create = makeActionCodec(0x04, 'create', [
 ])
 
 // 0x05
-exports.addAttribute = makeActionCodec(0x05, 'addAttribute', [
+const AddAttributeAction = Struct([
   ['playerNumber', t.int8],
   ['attribute', t.int8],
   t.skip(1),
@@ -73,7 +66,7 @@ exports.addAttribute = makeActionCodec(0x05, 'addAttribute', [
 ])
 
 // 0x06
-exports.giveAttribute = makeActionCodec(0x06, 'giveAttribute', [
+const GiveAttributeAction = Struct([
   ['playerNumber', t.int8],
   ['targetNumber', t.int8],
   ['attribute', t.int8],
@@ -81,7 +74,7 @@ exports.giveAttribute = makeActionCodec(0x06, 'giveAttribute', [
 ])
 
 // 0x0a
-exports.aiOrder = makeActionCodec(0x0a, 'aiOrder', [
+const AIOrderAction = Struct([
   // ???
   ['u0', t.int8],
   ['u1', t.int8],
@@ -100,23 +93,23 @@ exports.aiOrder = makeActionCodec(0x0a, 'aiOrder', [
 ])
 
 // 0x0b
-exports.resign = makeActionCodec(0x0b, 'resign', [
+const ResignAction = Struct([
   ['playerNumber', t.int8],
   ['playerNum', t.int8],
   ['dropped', t.int8]
 ])
 
 // 0x0c
-exports.addWaypoint = makeActionCodec(0x0c, 'addWaypoint', [
+const AddWaypointAction = Struct([
 ])
 
 // 0x0d
-exports.pause = makeActionCodec(0x0d, 'pause', [
+const PauseAction = Struct([
   // Doesn't occur in savegames.
 ])
 
 // 0x10
-exports.groupWaypoint = makeActionCodec(0x10, 'groupWaypoint', [
+const GroupWaypointAction = Struct([
   ['playerNumber', t.int8],
   t.skip(2),
   ['unitId', t.int32],
@@ -125,29 +118,29 @@ exports.groupWaypoint = makeActionCodec(0x10, 'groupWaypoint', [
 ])
 
 // 0x12
-exports.unitAiState = makeActionCodec(0x12, 'unitAiState', [
+const UnitAIStateAction = Struct([
   ['selectedCount', t.int8],
   ['state', t.int8],
-  ['units', objectList]
+  ['units', ObjectList]
 ])
 
 // 0x13
-exports.guard = makeActionCodec(0x13, 'guard', [
+const GroupAction = Struct([
   ['selectedCount', t.int8],
   t.skip(2),
   ['targetId', t.int32],
-  ['units', objectList]
+  ['units', ObjectList]
 ])
 
 // 0x14
-exports.follow = makeActionCodec(0x14, 'follow', [
+const FollowAction = Struct([
   ['selectedCount', t.int8],
   t.skip(2),
   ['targetId', t.int32],
-  ['units', objectList]
+  ['units', ObjectList]
 ])
 
-const patrolWaypoints = Struct([
+const PatrolWaypoints = Struct([
   ['xs', t.array(10, t.float)],
   ['ys', t.array(10, t.float)]
 ]).map(
@@ -175,41 +168,41 @@ const patrolWaypoints = Struct([
   }
 )
 
-exports.patrol = makeActionCodec(0x15, 'patrol', [
+const PatrolAction = Struct([
   ['selectedCount', t.int8],
   ['waypointsCount', t.int16],
-  ['waypoints', patrolWaypoints],
-  ['units', objectList]
+  ['waypoints', PatrolWaypoints],
+  ['units', ObjectList]
 ])
 
 // 0x16
-exports.scout = makeActionCodec(0x16, 'scout', [
+const ScoutAction = Struct([
 ])
 
 // 0x17
-exports.formFormation = makeActionCodec(0x17, 'formFormation', [
+const FormFormationAction = Struct([
   ['selectedCount', t.int8],
   ['playerNumber', t.int8],
   t.skip(1),
   ['formation', t.int32],
-  ['units', objectList]
+  ['units', ObjectList]
 ])
 
 // 0x18
-exports.breakFormation = makeActionCodec(0x18, 'breakFormation', [
+const BreakFormationAction = Struct([
   // ???
 ])
 
 // 0x19
-exports.wheelFormation = makeActionCodec(0x19, 'wheelFormation', [
+const WheelFormationAction = Struct([
 ])
 
 // 0x1A
-exports.aboutFaceFormation = makeActionCodec(0x1A, 'aboutFaceFormation', [
+const AboutFaceFormationAction = Struct([
 ])
 
 // 0x1B
-exports.save = makeActionCodec(0x1B, 'save', [
+const SaveAction = Struct([
   // Does not occur in savegames.
   ['exit', t.bool],
   ['playerNumber', t.int8],
@@ -219,43 +212,43 @@ exports.save = makeActionCodec(0x1B, 'save', [
 ])
 
 // 0x1C
-exports.formationParameters = makeActionCodec(0x1C, 'formationParameters', [
+const FormationParametersAction = Struct([
 ])
 
 // 0x1d
-exports.autoFormations = makeActionCodec(0x1D, 'autoFormations', [
+const AutoFormationsAction = Struct([
 ])
 
 // 0x1e
-exports.lockFormation = makeActionCodec(0x1E, 'lockFormation', [
+const LockFormationAction = Struct([
 ])
 
 // 0x1f
-exports.groupMultiWaypoints = makeActionCodec(0x1F, 'groupMultiWaypoints', [
+const GroupMultiWaypointsAction = Struct([
 ])
 
 // 0x20
-exports.chapter = makeActionCodec(0x20, 'chapter', [
+const ChapterAction = Struct([
 ])
 
 // 0x21
-exports.attackMove = makeActionCodec(0x21, 'attackMove', [
+const AttackMoveAction = Struct([
 ])
 
 // 0x22
-exports.attackMoveTarget = makeActionCodec(0x22, 'attackMoveTarget', [
+const AttackMoveTargetAction = Struct([
   // ???
 ])
 
 // 0x35
-exports.aiCommand = makeActionCodec(0x35, 'aiCommand', [
+const AICommandAction = Struct([
   // ???
   // ai related?
   // UserPatch only
 ])
 
 // 0x64
-exports.make = makeActionCodec(0x64, 'make', [
+const MakeAction = Struct([
   t.skip(3),
   ['buildingId', t.int32],
   ['playerNumber', t.int8],
@@ -265,7 +258,7 @@ exports.make = makeActionCodec(0x64, 'make', [
 ])
 
 // 0x65
-exports.research = makeActionCodec(0x65, 'research', [
+const ResearchAction = Struct([
   t.skip(1),
   ['buildingId', t.int32],
   ['playerNumber', t.int16],
@@ -274,7 +267,7 @@ exports.research = makeActionCodec(0x65, 'research', [
 ])
 
 // 0x66
-exports.build = makeActionCodec(0x66, 'build', [
+const BuildAction = Struct([
   ['builderCount', t.int8],
   ['playerNumber', t.int16],
   ['x', t.float],
@@ -285,7 +278,7 @@ exports.build = makeActionCodec(0x66, 'build', [
 ])
 
 // 0x67
-exports.game = makeActionCodec(0x67, 'game', [
+const GameAction = Struct([
   ['command', t.int8],
   ['playerNumber', t.int8],
 
@@ -356,11 +349,11 @@ exports.game = makeActionCodec(0x67, 'game', [
 ])
 
 // 0x68
-exports.explore = makeActionCodec(0x68, 'explore', [
+const ExploreAction = Struct([
 ])
 
 // 0x69
-exports.buildWall = makeActionCodec(0x69, 'buildWall', [
+const BuildWallAction = Struct([
   ['selectedCount', t.int8],
   ['playerNumber', t.int8],
   ['start', Struct([
@@ -374,28 +367,28 @@ exports.buildWall = makeActionCodec(0x69, 'buildWall', [
   t.skip(1),
   ['buildingId', t.int16],
   t.skip(2),
-  ct.const([ 0xFF, 0xFF, 0xFF, 0xFF ]),
-  ['builders', objectList]
+  ct.const([0xff, 0xff, 0xff, 0xff]),
+  ['builders', ObjectList]
 ])
 
 // 0x6a
-exports.cancelBuild = makeActionCodec(0x6A, 'cancelBuild', [
+const CancelBuildAction = Struct([
   t.skip(3),
   ['target', t.int32],
   ['player', t.int32]
 ])
 
 // 0x6b
-exports.attackGround = makeActionCodec(0x6B, 'attackGround', [
+const AttackGroundAction = Struct([
   ['selectedCount', t.int8],
   t.skip(2),
   ['x', t.float],
   ['y', t.float],
-  ['units', objectList]
+  ['units', ObjectList]
 ])
 
 // 0x6c
-exports.tribeGiveAttribute = makeActionCodec(0x6c, 'tribeGiveAttribute', [
+const TribeGiveAttributeAction = Struct([
   ['playerNumber', t.int8],
   ['targetNumber', t.int8],
   ['attribute', t.int8],
@@ -404,24 +397,24 @@ exports.tribeGiveAttribute = makeActionCodec(0x6c, 'tribeGiveAttribute', [
 ])
 
 // 0x6d
-exports.tradeAttribute = makeActionCodec(0x6d, 'tradeAttribute', [
+const TradeAttributeAction = Struct([
   // Seems unused, unsure what this is supposed to do
   ['selectedCount', t.int8],
   t.skip(2),
   ['attribute', t.int32],
-  ['units', objectList]
+  ['units', ObjectList]
 ])
 
 // 0x6e
-exports.repair = makeActionCodec(0x6e, 'repair', [
+const RepairAction = Struct([
   ['selectedCount', t.int8],
   t.skip(2),
   ['targetId', t.int32],
-  ['repairers', objectList]
+  ['repairers', ObjectList]
 ])
 
 // 0x6f
-exports.ungarrison = makeActionCodec(0x6f, 'ungarrison', [
+const UngarrisonAction = Struct([
   ['selectedCount', t.int8],
   t.skip(2),
   ['x', t.float],
@@ -429,26 +422,26 @@ exports.ungarrison = makeActionCodec(0x6f, 'ungarrison', [
   ['ungarrisonType', t.int8],
   t.skip(3),
   ['ungarrisonId', t.int32],
-  ['buildings', objectList]
+  ['buildings', ObjectList]
 ])
 
 // 0x70
-exports.multiQueue = makeActionCodec(0x70, 'multiQueue', [
+const MultiQueueAction = Struct([
   t.skip(3),
   ['unitType', t.int16],
   ['selectedCount', t.int8],
   ['amount', t.int8],
-  ['buildings', objectList]
+  ['buildings', ObjectList]
 ])
 
 // 0x72
-exports.gate = makeActionCodec(0x72, 'gate', [
+const GateAction = Struct([
   t.skip(3),
   ['gateId', t.int32]
 ])
 
 // 0x73
-exports.flare = makeActionCodec(0x73, 'flare', [
+const FlareAction = Struct([
   t.skip(3),
   t.int32,
   ['receivers', t.array(9, t.int8)],
@@ -461,17 +454,17 @@ exports.flare = makeActionCodec(0x73, 'flare', [
 ])
 
 // 0x74
-exports.special = makeActionCodec(0x74, 'special', [
+const SpecialAction = Struct([
   ['selectedCount', t.int8],
   t.skip(3),
   ['targetId', t.int32],
   ['action', t.int8],
   t.skip(3),
-  ['units', objectList]
+  ['units', ObjectList]
 ])
 
 // 0x75
-exports.unitOrder = makeActionCodec(0x75, 'unitOrder', [
+const UnitOrderAction = Struct([
   // ???
   ['selectedCount', t.int8],
   t.skip(2),
@@ -485,18 +478,18 @@ exports.unitOrder = makeActionCodec(0x75, 'unitOrder', [
   ['x', t.float],
   ['y', t.float],
   ['param', t.int32],
-  ['units', objectList]
+  ['units', ObjectList]
 ])
 
 // 0x76
-exports.diplomacy = makeActionCodec(0x76, 'diplomacy', [
+const DiplomacyAction = Struct([
   // This action makes demands of a player, in exchange for an alliance
   // or whatever. I think AI scripts now implement this manually though,
   // and this action is unused.
 ])
 
 // 0x77
-exports.queue = makeActionCodec(0x77, 'queue', [
+const QueueAction = Struct([
   t.skip(3),
   ['building', t.int32],
   ['unitType', t.int16],
@@ -504,24 +497,24 @@ exports.queue = makeActionCodec(0x77, 'queue', [
 ])
 
 // 0x78
-exports.setGatherPoint = makeActionCodec(0x78, 'setGatherPoint', [
+const SetGatherPointAction = Struct([
   ['selectedCount', t.int8],
   t.skip(2),
   ['targetId', t.int32], // 0xffffffff if there is no target object (i.e. the target is a location)
   ['targetType', t.int32], // 0xffff0000 if there is no target object, object type otherwise?
   ['x', t.float],
   ['y', t.float],
-  ['objects', objectList]
+  ['objects', ObjectList]
 ])
 
 // 0x79
-exports.setRetreatPoint = makeActionCodec(0x79, 'setRetreatPoint', [
+const SetRetreatPointAction = Struct([
   t.skip(3),
   ['unitId', t.int32]
 ])
 
 // 0x7a
-exports.sellCommodity = makeActionCodec(0x7A, 'sellCommodity', [
+const SellCommodityAction = Struct([
   ['player', t.int8],
   ['resource', t.int8],
   // market commands store the amount as a byte containing 1 or 5 for 100 and 500 (shift-click)
@@ -530,7 +523,7 @@ exports.sellCommodity = makeActionCodec(0x7A, 'sellCommodity', [
 ])
 
 // 0x7b
-exports.buyCommodity = makeActionCodec(0x7b, 'buyCommodity', [
+const BuyCommodityAction = Struct([
   ['player', t.int8],
   ['resource', t.int8],
   ['amount', t.int8.mapRead((amount) => amount * 100)],
@@ -538,29 +531,29 @@ exports.buyCommodity = makeActionCodec(0x7b, 'buyCommodity', [
 ])
 
 // 0x7c
-exports.offBoardTrade = makeActionCodec(0x7c, 'offBoardTrade', [
+const OffBoardTradeAction = Struct([
   // Unused.
 ])
 
 // 0x7d
-exports.unitTransform = makeActionCodec(0x7d, 'unitTransform', [
+const UnitTransformAction = Struct([
   // Unused?
   ['selectedCount', t.int8],
   ['playerNumber', t.int8],
   t.skip(1),
   t.int32,
   t.skip(4),
-  ['objects', objectList]
+  ['objects', ObjectList]
 ])
 
 // 0x7e
-exports.dropRelic = makeActionCodec(0x7e, 'dropRelic', [
+const DropRelicAction = Struct([
   t.skip(3),
   ['unitId', t.int32]
 ])
 
 // 0x7f
-exports.townBell = makeActionCodec(0x7f, 'townBell', [
+const TownBellAction = Struct([
   t.skip(3),
   ['buildingId', t.int32],
   ['active', t.int32], // whether the bell turns "on" or "off", 1 if villagers enter tc, 0 if villagers exit
@@ -568,7 +561,7 @@ exports.townBell = makeActionCodec(0x7f, 'townBell', [
 ])
 
 // 0x80
-exports.backToWork = makeActionCodec(0x80, 'backToWork', [
+const BackToWorkAction = Struct([
   t.skip(3),
   ['buildingId', t.int32]
 ])
@@ -576,7 +569,7 @@ exports.backToWork = makeActionCodec(0x80, 'backToWork', [
 // 0xff
 // UserPatch multiplayer postgame data
 
-const militaryAchievements = Struct([
+const MilitaryAchievements = Struct([
   ['score', t.int16],
   ['unitsKilled', t.int16],
   ['hitPointsKilled', t.int16],
@@ -587,7 +580,7 @@ const militaryAchievements = Struct([
   ['unitsConverted', t.int16]
 ])
 
-const economyAchievements = Struct([
+const EconomyAchievements = Struct([
   ['score', t.int16],
   t.skip(2),
   ['foodCollected', t.int32],
@@ -600,7 +593,7 @@ const economyAchievements = Struct([
   ['relicGold', t.int16]
 ])
 
-const techAchievements = Struct([
+const TechAchievements = Struct([
   ['score', t.int16],
   t.skip(2),
   ['feudalTime', t.int32],
@@ -611,7 +604,7 @@ const techAchievements = Struct([
   ['researchPercent', t.int8]
 ])
 
-const societyAchievements = Struct([
+const SocietyAchievements = Struct([
   ['score', t.int16],
   ['totalWonders', t.int8],
   ['totalCastles', t.int8],
@@ -620,37 +613,37 @@ const societyAchievements = Struct([
   ['villagerHigh', t.int16]
 ])
 
-const playerAchievements = Struct([
+const PlayerAchievements = Struct([
   ['name', t.string(16).mapRead((n) => n.trim())],
   ['totalScore', t.int16],
   ['totalScores', t.array(8, t.int16)],
-  ['victory', ct.bool],
+  ['victory', t.bool],
   ['civilization', t.int8],
   ['color', t.int8],
   ['team', t.int8],
   ['allyCount', t.int8],
-  ct.const(-1),
-  ['mvp', ct.bool],
+  ct.const([-1]),
+  ['mvp', t.bool],
   t.skip(3),
   ['result', t.int8],
   t.skip(3),
-  ['military', militaryAchievements],
+  ['military', MilitaryAchievements],
   t.skip(32),
-  ['economy', economyAchievements],
+  ['economy', EconomyAchievements],
   t.skip(16),
-  ['tech', techAchievements],
+  ['tech', TechAchievements],
   t.skip(1),
-  ['society', societyAchievements],
+  ['society', SocietyAchievements],
   t.skip(84)
 ])
 
-exports.postgame = makeActionCodec(0xff, 'postgame', [
+const PostgameData = Struct([
   t.skip(3),
   ['scenarioFilename', t.string(32).mapRead((n) => n.trim())],
   t.skip(4),
   ['duration', t.int32],
-  ['allowCheats', ct.bool],
-  ['complete', ct.bool],
+  ['allowCheats', t.bool],
+  ['complete', t.bool],
   t.skip(14),
   ['mapSize', t.int8],
   ['mapId', t.int8],
@@ -659,15 +652,147 @@ exports.postgame = makeActionCodec(0xff, 'postgame', [
   ['victory', t.int8],
   ['startingAge', t.int8],
   ['resources', t.int8],
-  ['allTechs', ct.bool],
-  ['teamTogether', ct.bool],
+  ['allTechs', t.bool],
+  ['teamTogether', t.bool],
   ['revealMap', t.int8],
   ['isDeathMatch', t.bool],
   ['isRegicide', t.bool],
   t.skip(1),
-  ['lockTeams', ct.bool],
-  ['lockSpeed', ct.bool],
+  ['lockTeams', t.bool],
+  ['lockSpeed', t.bool],
   ['u5', t.buffer(1)], // TRIBE_Game__unknown5
-  ['players', t.array(8, playerAchievements)],
+  ['players', t.array(8, PlayerAchievements)],
   t.skip(4)
 ])
+
+const actionCodecs = {
+  0x00: OrderAction,
+  0x01: StopAction,
+  0x02: WorkAction,
+  0x03: MoveAction,
+  0x04: CreateAction,
+  0x05: AddAttributeAction,
+  0x06: GiveAttributeAction,
+  0x0a: AIOrderAction,
+  0x0b: ResignAction,
+  0x0c: AddWaypointAction,
+  0x0d: PauseAction,
+  0x10: GroupWaypointAction,
+  0x12: UnitAIStateAction,
+  0x13: GroupAction,
+  0x14: FollowAction,
+  0x15: PatrolAction,
+  0x16: ScoutAction,
+  0x17: FormFormationAction,
+  0x18: BreakFormationAction,
+  0x19: WheelFormationAction,
+  0x1a: AboutFaceFormationAction,
+  0x1b: SaveAction,
+  0x1c: FormationParametersAction,
+  0x1d: AutoFormationsAction,
+  0x1e: LockFormationAction,
+  0x1f: GroupMultiWaypointsAction,
+  0x20: ChapterAction,
+  0x21: AttackMoveAction,
+  0x22: AttackMoveTargetAction,
+  0x35: AICommandAction,
+  0x64: MakeAction,
+  0x65: ResearchAction,
+  0x66: BuildAction,
+  0x67: GameAction,
+  0x68: ExploreAction,
+  0x69: BuildWallAction,
+  0x6a: CancelBuildAction,
+  0x6b: AttackGroundAction,
+  0x6c: TribeGiveAttributeAction,
+  0x6d: TradeAttributeAction,
+  0x6e: RepairAction,
+  0x6f: UngarrisonAction,
+  0x70: MultiQueueAction,
+  0x72: GateAction,
+  0x73: FlareAction,
+  0x74: SpecialAction,
+  0x75: UnitOrderAction,
+  0x76: DiplomacyAction,
+  0x77: QueueAction,
+  0x78: SetGatherPointAction,
+  0x79: SetRetreatPointAction,
+  0x7a: SellCommodityAction,
+  0x7b: BuyCommodityAction,
+  0x7c: OffBoardTradeAction,
+  0x7d: UnitTransformAction,
+  0x7e: DropRelicAction,
+  0x7f: TownBellAction,
+  0x80: BackToWorkAction,
+  0xff: PostgameData
+}
+
+const TriageAction = Struct([
+  ['actionType', t.uint8],
+  ...Object.keys(actionCodecs).map((id) =>
+    t.if(s => s.actionType === id, actionCodecs[id])
+  )
+])
+
+module.exports = {
+  OrderAction,
+  StopAction,
+  WorkAction,
+  MoveAction,
+  CreateAction,
+  AddAttributeAction,
+  GiveAttributeAction,
+  AIOrderAction,
+  ResignAction,
+  AddWaypointAction,
+  PauseAction,
+  GroupWaypointAction,
+  UnitAIStateAction,
+  GroupAction,
+  FollowAction,
+  PatrolAction,
+  ScoutAction,
+  FormFormationAction,
+  BreakFormationAction,
+  WheelFormationAction,
+  AboutFaceFormationAction,
+  SaveAction,
+  FormationParametersAction,
+  AutoFormationsAction,
+  LockFormationAction,
+  GroupMultiWaypointsAction,
+  ChapterAction,
+  AttackMoveAction,
+  AttackMoveTargetAction,
+  AICommandAction,
+  MakeAction,
+  ResearchAction,
+  BuildAction,
+  GameAction,
+  ExploreAction,
+  BuildWallAction,
+  CancelBuildAction,
+  AttackGroundAction,
+  TribeGiveAttributeAction,
+  TradeAttributeAction,
+  RepairAction,
+  UngarrisonAction,
+  MultiQueueAction,
+  GateAction,
+  FlareAction,
+  SpecialAction,
+  UnitOrderAction,
+  DiplomacyAction,
+  QueueAction,
+  SetGatherPointAction,
+  SetRetreatPointAction,
+  SellCommodityAction,
+  BuyCommodityAction,
+  OffBoardTradeAction,
+  UnitTransformAction,
+  DropRelicAction,
+  TownBellAction,
+  BackToWorkAction,
+  PostgameData,
+  TriageAction
+}
