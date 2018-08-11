@@ -2,7 +2,7 @@ const Struct = require('awestruct')
 const associate = require('associate-arrays')
 const ct = require('./types')
 const resourceNames = require('./resourceNames')
-const { TriageObject } = require('genie-dat')
+const { TriageObject } = require('genie-dat/lib/object')
 
 function log (x) { console.log(x); return x }
 

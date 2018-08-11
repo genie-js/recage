@@ -1,5 +1,5 @@
 const { Buffer } = require('safe-buffer')
-const through = require('through2')
+const { Transform } = require('stream')
 const Struct = require('awestruct')
 const { TriageAction } = require('./actions')
 
@@ -11,17 +11,22 @@ const { TriageAction } = require('./actions')
  *                may not be very interesting. Defaults to `true`.
  */
 
-function BodyParser (options = {}) {
-  var saveSync = options.saveSync != null ? options.saveSync : true
-  var buffer = null
-  var currentTime = null
+class BodyParser extends Transform {
+  constructor (options = {}) {
+    super({
+      writableObjectMode: false,
+      readableObjectMode: true
+    })
 
-  return through({ writableObjectMode: false, readableObjectMode: true }, onwrite)
+    this.saveSync = options.saveSync != null ? options.saveSync : true
+    this.buffer = null
+    this.currentTime = null
+  }
 
-  function onwrite (chunk, enc, next) {
-    if (buffer) {
-      chunk = Buffer.concat([ buffer, chunk ])
-      buffer = null
+  _transform (chunk, enc, next) {
+    if (this.buffer) {
+      chunk = Buffer.concat([ this.buffer, chunk ])
+      this.buffer = null
     }
 
     var offs = 0
@@ -48,7 +53,7 @@ function BodyParser (options = {}) {
           offs += 4
           this.push({
             type: 'chat',
-            time: currentTime,
+            time: this.currentTime,
             length: chatLength,
             message: chunk.toString('utf8', offs, offs + chatLength)
           })
@@ -77,7 +82,7 @@ function BodyParser (options = {}) {
             offs = backtrack
             break
           }
-          if (saveSync) {
+          if (this.saveSync) {
             pack.u1 = chunk.readInt32LE(offs)
             offs += 4
             pack.u2 = chunk.slice(offs, offs + 4)
@@ -100,7 +105,7 @@ function BodyParser (options = {}) {
           offs = backtrack
           break
         }
-        if (saveSync) {
+        if (this.saveSync) {
           pack.x = chunk.readFloatLE(offs)
           offs += 4
           pack.y = chunk.readFloatLE(offs)
@@ -110,13 +115,13 @@ function BodyParser (options = {}) {
 
           this.push({
             type: 'sync',
-            time: currentTime,
+            time: this.currentTime,
             data: pack
           })
         } else {
           offs += 12
         }
-        currentTime += pack.time
+        this.currentTime += pack.time
       } else if (odType === 1) {
         var length = chunk.readInt32LE(offs)
         offs += 4
@@ -129,7 +134,7 @@ function BodyParser (options = {}) {
         if (action) {
           this.push({
             type: 'action',
-            time: currentTime,
+            time: this.currentTime,
             id: action.actionId,
             name: action.actionName,
             length: length,
@@ -138,7 +143,7 @@ function BodyParser (options = {}) {
         } else {
           this.push({
             type: 'unknown',
-            time: currentTime,
+            time: this.currentTime,
             command: command,
             length: length,
             buf: chunk.slice(offs, offs + length)
@@ -152,7 +157,7 @@ function BodyParser (options = {}) {
     }
 
     if (offs < size) {
-      buffer = chunk.slice(offs)
+      this.buffer = chunk.slice(offs)
     }
 
     next()

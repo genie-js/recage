@@ -1,9 +1,9 @@
 const { Buffer } = require('safe-buffer')
 const fs = require('fs')
-const zlib = require('zlib')
+const inflate = require('inflate-raw/stream')
 const concat = require('concat-stream')
 const fromBuffer = require('from2-buffer')
-const through = require('through2')
+const { PassThrough } = require('stream')
 const h = require('./header')
 const BodyParser = require('./BodyParser')
 
@@ -49,7 +49,7 @@ class RecordedGame {
     if (this.headerLen) {
       return this.sliceStream(8, this.headerLen + 8)
     }
-    const stream = through()
+    const stream = new PassThrough()
     this.open((e, fd) => {
       if (e) {
         stream.emit('error', e)
@@ -64,7 +64,7 @@ class RecordedGame {
     if (this.headerLen) {
       return this.sliceStream(this.headerLen)
     }
-    const stream = through()
+    const stream = new PassThrough()
     this.open((e, fd) => {
       if (e) {
         stream.emit('error', e)
@@ -76,10 +76,8 @@ class RecordedGame {
   }
 
   parseHeader (cb) {
-    const inflate = zlib.createInflateRaw()
-
     return this.getHeaderStream()
-      .pipe(inflate)
+      .pipe(inflate())
       .pipe(concat((buf) => {
         const opts = { buf, offset: 0 }
         const header = h.header(opts)
@@ -95,8 +93,9 @@ class RecordedGame {
       cb = options
       options = {}
     }
-    const b = BodyParser(options)
-    this.getBodyStream().pipe(b)
+    const b = new BodyParser(options)
+    this.getBodyStream()
+      .pipe(b)
       .pipe(concat((rec) => {
         cb(null, rec)
       }))
