@@ -119,7 +119,10 @@ const PlayerTech = Struct([
   ['count', t.int16],
   ['techs', t.array('count', Struct([
     ['researchDone', t.int32],
-    ['state', t.int16]
+    ['state', t.int16],
+    // guesses:
+    ['escrows', t.array(3, t.int16)],
+    ['time', t.int16]
   ]))]
 ])
 
