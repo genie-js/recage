@@ -4,8 +4,6 @@ const ct = require('./types')
 const resourceNames = require('./resourceNames')
 const { TriageObject } = require('genie-dat/lib/object')
 
-function log (x) { console.log(x); return x }
-
 const t = Struct.types
 
 const dynamicArray = (sizeType, elementType) =>
@@ -27,7 +25,7 @@ const StringTable = Struct([
   ['numStrings', t.int16],
   // thanks ES for dumping pointers lol
   ['stringsPointer', t.int32],
-  ['strings', t.array('numStrings', ct.string(t.int32))],
+  ['strings', t.array('numStrings', ct.string(t.int32))]
 ])
 
 const AIScript = Struct([
@@ -192,7 +190,7 @@ const TechTree = Struct([
   ['ages', t.array('ageCount', TechTreeAge)],
   ['buildings', t.array('buildingCount', TechTreeBuilding)],
   ['units', t.array('unitCount', TechTreeUnit)],
-  ['researchs', t.array('researchCount', TechTreeResearch)],
+  ['researchs', t.array('researchCount', TechTreeResearch)]
 ])
 
 const HistoryInfo = Struct([
@@ -260,7 +258,7 @@ const RGEPlayer = playersCount => Struct([
   ['savedViews', t.array('savedViewsCount', View)],
   ['map', Struct([
     ['x', t.int16],
-    ['y', t.int16],
+    ['y', t.int16]
   ])],
   ['culture', t.int8],
   ['civilization', t.int8],
@@ -298,7 +296,7 @@ const TribePlayer = playersCount => Struct([
   ct.const([11]),
   ['type2', t.int8],
   t.buffer(16 + 1 + 12 + 1 + 16),
-  ['playerTech',  PlayerTech],
+  ['playerTech', PlayerTech],
   ['updateHistoryCount', t.int32],
   ['historyInfo', HistoryInfo],
   ['ruinHeldTime', t.int32],
@@ -315,7 +313,7 @@ const TribePlayer = playersCount => Struct([
     ['a9', t.int32],
     ['length', t.int32],
     ['str', t.string('length')],
-    ['end', t.int8],
+    ['end', t.int8]
   ]))],
   ['u7712', t.int16],
   ct.const([33]),

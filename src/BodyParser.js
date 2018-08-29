@@ -1,6 +1,5 @@
 const { Buffer } = require('safe-buffer')
 const { Transform } = require('stream')
-const Struct = require('awestruct')
 const { TriageAction } = require('./actions')
 
 /**

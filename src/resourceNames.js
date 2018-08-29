@@ -196,5 +196,5 @@ module.exports = [
   'hasCrenellations',
   'buildRate',
   'atheismWonderBonus',
-  'atheismSpiesDiscount',
+  'atheismSpiesDiscount'
 ]
