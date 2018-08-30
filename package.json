@@ -2,10 +2,7 @@
   "name": "recage",
   "description": "Age of Empires 2 Recorded Game parser in Node.js",
   "version": "0.1.0",
-  "main": "./lib/RecordedGame",
   "author": "Renée Kooi <renee@kooi.me>",
-  "repository": "goto-bus-stop/recage",
-  "homepage": "https://goto-bus-stop.github.io/recage",
   "browser": {
     "zlib": "./lib/zlib"
   },
@@ -24,10 +21,14 @@
     "standard": "^12.0.0",
     "watch": "^1.0.1"
   },
+  "homepage": "https://goto-bus-stop.github.io/recage",
+  "license": "GPL-3.0",
+  "main": "./lib/RecordedGame",
+  "repository": "goto-bus-stop/recage",
   "scripts": {
+    "build": "buble src -o lib",
     "prepublish": "npm run build",
     "test": "standard src/**/*.js gulpfile.js",
-    "build": "buble src -o lib",
     "watch": "watch 'buble src -o lib && echo ok' src"
   }
 }

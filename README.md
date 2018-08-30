@@ -34,7 +34,7 @@ game.parseBody(function onbody (err, body) {
 
 ## License
 
-[MIT][]
+[GPL-3.0][]
 
-[MIT]: ./LICENSE
+[GPL-3.0]: ./LICENSE.md
 [PHP RecAnalyst]: https://github.com/goto-bus-stop/recanalyst
