@@ -11,7 +11,7 @@ const StringTable = Struct([
   ['numStrings', t.int16],
   // thanks ES for dumping pointers lol
   ['stringsPointer', t.int32],
-  ['strings', t.array('numStrings', ct.string(t.int32))]
+  ['strings', t.array('numStrings', t.dynstring(t.int32))]
 ])
 
 const AIScript = Struct([
@@ -222,7 +222,7 @@ const RGEPlayer = playersCount => Struct([
   ['unitDiplomacy', t.array(9, t.int32)],
   ['alliedLOS', t.int32],
   ['alliedVictory', t.int8],
-  ['name', ct.string(t.int16)],
+  ['name', t.dynstring(t.int16)],
   ct.const([22]),
   ['attributesCount', t.int32],
   ct.const([33]),

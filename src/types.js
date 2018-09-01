@@ -1,17 +1,6 @@
 const Struct = require('awestruct')
 const t = Struct.types
 
-exports.string = function string (sizeType) {
-  return Struct.Type({
-    read (opts) {
-      const size = sizeType.read(opts)
-      return t.char(size).read(opts)
-    },
-    write () {},
-    size () {}
-  })
-}
-
 exports.longBool = t.int32.mapRead((i) => i !== 0)
 
 exports.matrix = (x, y, type) => t.array(x, t.array(y, type))
