@@ -170,8 +170,7 @@ const PatrolWaypoints = Struct([
 
 const PatrolAction = Struct([
   ['selectedCount', t.int8],
-  ['waypointsCount', t.int16],
-  ['waypoints', PatrolWaypoints],
+  ['waypoints', t.dynarray(t.int16, PatrolWaypoints)],
   ['units', ObjectList]
 ])
 

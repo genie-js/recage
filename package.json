@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "associate-arrays": "^1.0.1",
-    "awestruct": "^1.0.0",
+    "awestruct": "^1.1.0",
     "concat-stream": "^1.4.7",
     "from2-buffer": "^1.0.0",
     "genie-dat": "^0.3.0",

@@ -6,20 +6,6 @@ const { TriageObject } = require('genie-dat/lib/object')
 
 const t = Struct.types
 
-const dynamicArray = (sizeType, elementType) =>
-  Struct([
-    ['size', sizeType],
-    ['elements', t.array('size', elementType)]
-  ]).map(
-    // When reading, return the elements only.
-    r => r.elements,
-    // When writing, turn an elements array into a size and elements field.
-    elements => ({
-      size: elements.length,
-      elements
-    })
-  )
-
 const StringTable = Struct([
   ['maxStrings', t.int16],
   ['numStrings', t.int16],
@@ -133,9 +119,9 @@ const TechTreeCommon = Struct([
 const TechTreeAge = Struct([
   ['id', t.int32],
   ['status', t.int8],
-  ['buildings', dynamicArray(t.uint8, t.int32)],
-  ['units', dynamicArray(t.uint8, t.int32)],
-  ['techs', dynamicArray(t.uint8, t.int32)],
+  ['buildings', t.dynarray(t.uint8, t.int32)],
+  ['units', t.dynarray(t.uint8, t.int32)],
+  ['techs', t.dynarray(t.uint8, t.int32)],
   TechTreeCommon,
   ['buildingLevelCount', t.int8],
   ['buildingsPerZone', t.int8],
@@ -147,9 +133,9 @@ const TechTreeAge = Struct([
 const TechTreeBuilding = Struct([
   ['id', t.int32],
   ['status', t.int8],
-  ['buildings', dynamicArray(t.uint8, t.int32)],
-  ['units', dynamicArray(t.uint8, t.int32)],
-  ['techs', dynamicArray(t.uint8, t.int32)],
+  ['buildings', t.dynarray(t.uint8, t.int32)],
+  ['units', t.dynarray(t.uint8, t.int32)],
+  ['techs', t.dynarray(t.uint8, t.int32)],
   TechTreeCommon,
   ['locationInAge', t.int8],
   ['unitsTechsTotal', t.int8],
@@ -164,7 +150,7 @@ const TechTreeUnit = Struct([
   ['upperBuilding', t.int32],
   TechTreeCommon,
   ['verticalLine', t.int32],
-  ['units', dynamicArray(t.uint8, t.int32)],
+  ['units', t.dynarray(t.uint8, t.int32)],
   ['locationInAge', t.int32],
   ['requiredResearch', t.int32],
   ['lineMode', t.int32],
@@ -175,9 +161,9 @@ const TechTreeResearch = Struct([
   ['id', t.int32],
   ['status', t.int8],
   ['upperBuilding', t.int32],
-  ['buildings', dynamicArray(t.uint8, t.int32)],
-  ['units', dynamicArray(t.uint8, t.int32)],
-  ['techs', dynamicArray(t.uint8, t.int32)],
+  ['buildings', t.dynarray(t.uint8, t.int32)],
+  ['units', t.dynarray(t.uint8, t.int32)],
+  ['techs', t.dynarray(t.uint8, t.int32)],
   TechTreeCommon,
   ['verticalLine', t.int32],
   ['locationInAge', t.int32],
@@ -291,7 +277,7 @@ const RGEPlayer = playersCount => Struct([
 ])
 
 const ObjectTypeList = Struct([
-  ['objects', dynamicArray(t.int32, TriageObject)]
+  ['objects', t.dynarray(t.int32, TriageObject)]
 ])
 
 const TribePlayer = playersCount => Struct([
