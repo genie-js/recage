@@ -729,7 +729,7 @@ const actionCodecs = {
 const TriageAction = Struct([
   ['actionType', t.uint8],
   ...Object.keys(actionCodecs).map((id) =>
-    t.if(s => s.actionType === id, actionCodecs[id])
+    t.if(s => s.actionType === Number(id), actionCodecs[id])
   )
 ])
 
