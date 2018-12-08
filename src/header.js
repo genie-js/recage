@@ -102,11 +102,11 @@ const MapData = Struct([
 const PlayerTech = Struct([
   ['count', t.int16],
   ['techs', t.array('count', Struct([
-    ['researchDone', t.int32],
+    ['timeProgress', t.float],
     ['state', t.int16],
     // guesses:
     ['escrows', t.array(3, t.int16)],
-    ['time', t.int16]
+    ['timeModifier', t.int16]
   ]))]
 ])
 
@@ -284,7 +284,19 @@ const TribePlayer = playersCount => Struct([
   RGEPlayer(`../${playersCount}`),
   ct.const([11]),
   ['type2', t.int8],
-  t.buffer(16 + 1 + 12 + 1 + 16),
+  t.skip(4),
+  t.skip(4),
+  t.skip(4),
+  t.skip(4),
+  t.skip(1),
+  t.skip(4),
+  t.skip(4),
+  t.skip(4),
+  t.skip(1),
+  t.skip(4),
+  t.skip(4),
+  t.skip(4),
+  t.skip(4),
   ['playerTech', PlayerTech],
   ['updateHistoryCount', t.int32],
   ['historyInfo', HistoryInfo],
@@ -300,7 +312,7 @@ const TribePlayer = playersCount => Struct([
     ['this+140+16', t.int32],
     ['more', t.array(8, t.int8)],
     ['a9', t.int32],
-    ['length', t.int32],
+    ['length', t.int8],
     ['str', t.string('length')],
     ['end', t.int8]
   ]))],
