@@ -75,21 +75,42 @@ const GiveAttributeAction = Struct([
 
 // 0x0a
 const AIOrderAction = Struct([
-  // ???
-  ['u0', t.int8],
-  ['u1', t.int8],
-  ['u2', t.int8],
-  ['u3', t.int32],
-  ['u4', t.buffer(4)],
-  ['u5', t.int32],
-  ['u6', t.int16],
-  ['u7', t.int32],
-  ['u8', t.int32],
-  ['u9', t.int32],
-  ['u10', t.int32],
-  ['u11', t.int32],
-  ['u12', t.int16],
-  ['u13', t.int8]
+  ['selectedCount', t.int8],
+  ['playerId', t.int8],
+  ['issuer', t.int8],
+  // If one object is selected it's embedded here
+  t.if(s => s.selectedCount === 1, Struct([
+    ['objectIds', t.array(1, t.int32)]
+  ])).else(t.skip(4)),
+  // some known types:
+  // { 700: 'attack',
+  //   701: 'defend', // position or object
+  //   702: 'build',
+  //   706: 'stop',
+  //   712: 'follow',
+  //   717: 'garrison',
+  //   718: 'repair',
+  //   721: 'unload' }
+  ['orderType', t.int16],
+  ['orderPriority', t.int8],
+  t.skip(1), // padding
+  ['targetId', t.int32],
+  ['targetPlayerId', t.int8],
+  t.skip(3),
+  ['targetLocation', Struct([
+    ['x', t.float],
+    ['y', t.float],
+    ['z', t.float],
+  ])],
+  ['range', t.float],
+  // Should this order be executed immediately or queued?
+  ['immediate', t.int8],
+  // add to front of the queue?
+  ['addToFront', t.int8],
+  // If more than 1 object is selected a list is placed at the end
+  t.if(s => s.selectedCount > 1, Struct([
+    ['objectIds', t.array('../selectedCount', t.int32)]
+  ]))
 ])
 
 // 0x0b
