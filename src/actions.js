@@ -100,7 +100,7 @@ const AIOrderAction = Struct([
   ['targetLocation', Struct([
     ['x', t.float],
     ['y', t.float],
-    ['z', t.float],
+    ['z', t.float]
   ])],
   ['range', t.float],
   // Should this order be executed immediately or queued?
