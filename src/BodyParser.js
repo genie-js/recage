@@ -14,8 +14,6 @@ const StartCommand = Struct([
   ['numberOfChapters', t.int32]
 ])
 
-const CHECKSUM_INTERVAL = 500
-
 const OP_ACTION = 1
 const OP_SYNC = 2
 const OP_VIEWLOCK = 3
@@ -41,7 +39,8 @@ class BodyParser extends Transform {
     this.saveSync = options.saveSync != null ? options.saveSync : true
     this.saveViewLock = options.saveViewLock != null ? options.saveViewLock : true
     this.buffer = null
-    this.nextChecksum = CHECKSUM_INTERVAL
+    this.checksumInterval = 500
+    this.nextChecksum = 500
     this.currentTime = 0
   }
 
@@ -55,8 +54,6 @@ class BodyParser extends Transform {
     const size = chunk.length
 
     let operationType
-    let command
-
     while (offs < size - 8) {
       operationType = chunk.readInt32LE(offs)
       offs += 4
@@ -88,15 +85,9 @@ class BodyParser extends Transform {
           y
         })
       } else if (operationType === OP_META) {
-        command = chunk.readInt32LE(offs)
+        const checksumInterval = chunk.readInt32LE(offs)
         offs += 4
-        if (command === 0x01f4) {
-          this.push(Object.assign(
-            { type: 'start', time: this.currentTime },
-            StartCommand.read({ buf: chunk, offset: offs })
-          ))
-          offs += 20
-        } else if (command === -1) {
+        if (checksumInterval === -1) {
           const chatLength = chunk.readUInt32LE(offs)
           offs += 4
           this.push({
@@ -107,7 +98,12 @@ class BodyParser extends Transform {
           })
           offs += chatLength
         } else {
-          throw new TypeError('other command')
+          this.checksumInterval = checksumInterval
+          this.push(Object.assign(
+            { type: 'start', time: this.currentTime },
+            StartCommand.read({ buf: chunk, offset: offs })
+          ))
+          offs += 20
         }
       } else if (operationType === OP_SYNC) {
         const backtrack = offs - 4
@@ -160,7 +156,7 @@ class BodyParser extends Transform {
 
         this.currentTime += sync.time
         if (containsChecksum) {
-          this.nextChecksum = CHECKSUM_INTERVAL
+          this.nextChecksum = this.checksumInterval
         } else {
           this.nextChecksum -= 1
         }
@@ -185,7 +181,6 @@ class BodyParser extends Transform {
           this.push({
             type: 'unknown',
             time: this.currentTime,
-            command: command,
             length: length,
             buf: chunk.slice(offs, offs + length)
           })
