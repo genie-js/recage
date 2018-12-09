@@ -84,7 +84,7 @@ const ActionType = {
   DropRelic: 0x7e,
   TownBell: 0x7f,
   BackToWork: 0x80,
-  PostgameData: 0xff,
+  PostgameData: 0xff
 }
 exports.ActionType = ActionType
 

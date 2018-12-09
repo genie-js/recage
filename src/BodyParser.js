@@ -16,6 +16,11 @@ const StartCommand = Struct([
 
 const CHECKSUM_INTERVAL = 500
 
+const OP_ACTION = 1
+const OP_SYNC = 2
+const OP_VIEWLOCK = 3
+const OP_META = 4
+
 /**
  * Recorded Game Body parser stream. Receives body data, outputs the commands.
  *
@@ -49,13 +54,13 @@ class BodyParser extends Transform {
     let offs = 0
     const size = chunk.length
 
-    let odType
+    let operationType
     let command
 
     while (offs < size - 8) {
-      odType = chunk.readInt32LE(offs)
+      operationType = chunk.readInt32LE(offs)
       offs += 4
-      if (odType === 3) {
+      if (operationType === OP_VIEWLOCK) {
         if (offs >= size - 12) {
           offs -= 4
           break
@@ -77,7 +82,7 @@ class BodyParser extends Transform {
           x,
           y
         })
-      } else if (odType === 4) {
+      } else if (operationType === OP_META) {
         command = chunk.readInt32LE(offs)
         offs += 4
         if (command === 0x01f4) {
@@ -100,7 +105,7 @@ class BodyParser extends Transform {
         } else {
           throw new TypeError('other command')
         }
-      } else if (odType === 2) {
+      } else if (operationType === OP_SYNC) {
         const backtrack = offs - 4
         // we read sync commands with the standard buffer methods because their length is not constant
         // we cannot know in advance if the command is completely within the current buffer, so we need
@@ -148,7 +153,7 @@ class BodyParser extends Transform {
         } else {
           this.nextChecksum -= 1
         }
-      } else if (odType === 1) {
+      } else if (operationType === OP_ACTION) {
         const length = chunk.readInt32LE(offs)
         offs += 4
         if (offs + length + 3 >= size) {
@@ -177,7 +182,7 @@ class BodyParser extends Transform {
         offs += length
         offs += 4
       } else {
-        throw new Error('Unknown odType: ' + odType)
+        throw new Error('Unknown operationType: ' + operationType)
       }
     }
 
