@@ -70,6 +70,11 @@ class BodyParser extends Transform {
           continue
         }
 
+        // const ViewLock = Struct([
+        //   ['x', t.float],
+        //   ['y', t.float],
+        //   ['playerId', t.int32]
+        // ])
         const x = chunk.readFloatLE(offs)
         const y = chunk.readFloatLE(offs + 4)
         const player = chunk.readInt32LE(offs + 8)
@@ -122,6 +127,13 @@ class BodyParser extends Transform {
             offs = backtrack
             break
           }
+          // const Checksums = Struct([
+          //   ct.const([0, 0]),
+          //   ['checksum', t.int32],
+          //   ['positionChecksum', t.int32],
+          //   ct.const([0, 0]),
+          //   ['actionChecksum', t.int32]
+          // ])
           if (this.saveSync) {
             offs += 4 // always 0
             offs += 4 // always 0
