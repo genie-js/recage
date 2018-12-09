@@ -1,6 +1,18 @@
+const Struct = require('awestruct')
 const { Buffer } = require('safe-buffer')
 const { Transform } = require('stream')
 const { TriageAction } = require('./actions')
+const t = Struct.types
+const ct = require('./types')
+
+const StartCommand = Struct([
+  ['isMultiplayer', ct.longBool],
+  ['pov', t.int32],
+  ['revealMap', t.int32],
+  ['recordSequenceNumbers', t.int32],
+  // not 100% sure about this
+  ['numberOfChapters', t.int32],
+])
 
 /**
  * Recorded Game Body parser stream. Receives body data, outputs the commands.
@@ -44,7 +56,7 @@ class BodyParser extends Transform {
           this.push({
             type: 'start',
             time: 0,
-            buf: chunk.slice(offs, offs + 20)
+            ...StartCommand.read({ buf: chunk, offset: offs })
           })
           offs += 20
         } else if (command === -1) {
