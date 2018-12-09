@@ -86,11 +86,10 @@ class BodyParser extends Transform {
         command = chunk.readInt32LE(offs)
         offs += 4
         if (command === 0x01f4) {
-          this.push({
-            type: 'start',
-            time: 0,
-            ...StartCommand.read({ buf: chunk, offset: offs })
-          })
+          this.push(Object.assign(
+            { type: 'start', time: this.currentTime },
+            StartCommand.read({ buf: chunk, offset: offs })
+          ))
           offs += 20
         } else if (command === -1) {
           const chatLength = chunk.readUInt32LE(offs)
