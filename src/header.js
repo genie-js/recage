@@ -342,7 +342,7 @@ const TribePlayer = playersCount => Struct([
   ObjectTypeList
 ])
 
-exports.header = Struct([
+const Header = Struct([
   ['versionString', t.char(8)],
   ['version', t.float],
   ['includeAi', ct.longBool],
@@ -370,4 +370,7 @@ exports.header = Struct([
   ['players', t.array('playersCount', TribePlayer('playersCount'))]
 ])
 
-exports.player = TribePlayer
+module.exports = {
+  Header,
+  TribePlayer
+}

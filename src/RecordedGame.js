@@ -4,7 +4,7 @@ const inflate = require('inflate-raw/stream')
 const concat = require('concat-stream')
 const fromBuffer = require('from2-buffer')
 const { PassThrough } = require('stream')
-const h = require('./header')
+const { Header } = require('./header')
 const BodyParser = require('./BodyParser')
 const {
   AIOrderType,
@@ -85,7 +85,7 @@ class RecordedGame {
       .pipe(inflate())
       .pipe(concat((buf) => {
         const opts = { buf, offset: 0 }
-        const header = h.header(opts)
+        const header = Header.read(opts)
         cb(null, header)
       }))
       .on('error', (e) => {
