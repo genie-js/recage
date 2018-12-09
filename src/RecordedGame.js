@@ -7,7 +7,9 @@ const { PassThrough } = require('stream')
 const h = require('./header')
 const BodyParser = require('./BodyParser')
 const {
-  AIOrderType
+  AIOrderType,
+  ActionType,
+  ActionName
 } = require('./consts')
 
 class RecordedGame {
@@ -115,3 +117,5 @@ module.exports = function (path) {
 }
 module.exports.RecordedGame = RecordedGame
 module.exports.AIOrderType = AIOrderType
+module.exports.ActionType = ActionType
+module.exports.ActionName = ActionName

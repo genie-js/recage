@@ -11,8 +11,10 @@ const StartCommand = Struct([
   ['revealMap', t.int32],
   ['recordSequenceNumbers', t.int32],
   // not 100% sure about this
-  ['numberOfChapters', t.int32],
+  ['numberOfChapters', t.int32]
 ])
+
+const CHECKSUM_INTERVAL = 500
 
 /**
  * Recorded Game Body parser stream. Receives body data, outputs the commands.
@@ -20,6 +22,8 @@ const StartCommand = Struct([
  * @param {Object} options Parser Options.
  *    `saveSync`: Whether to output sync packets. There can be a lot of these, and they
  *                may not be very interesting. Defaults to `true`.
+ *    `saveViewLock`: Whether to output view lock packets. There are a lot of these, and
+ *                they may not be very interesting. Defaults to `true`.
  */
 
 class BodyParser extends Transform {
@@ -30,8 +34,10 @@ class BodyParser extends Transform {
     })
 
     this.saveSync = options.saveSync != null ? options.saveSync : true
+    this.saveViewLock = options.saveViewLock != null ? options.saveViewLock : true
     this.buffer = null
-    this.currentTime = null
+    this.nextChecksum = CHECKSUM_INTERVAL
+    this.currentTime = 0
   }
 
   _transform (chunk, enc, next) {
@@ -40,16 +46,38 @@ class BodyParser extends Transform {
       this.buffer = null
     }
 
-    var offs = 0
-    var size = chunk.length
+    let offs = 0
+    const size = chunk.length
 
-    var odType
-    var command
+    let odType
+    let command
 
     while (offs < size - 8) {
       odType = chunk.readInt32LE(offs)
       offs += 4
-      if (odType === 4 || odType === 3) {
+      if (odType === 3) {
+        if (offs >= size - 12) {
+          offs -= 4
+          break
+        }
+        if (!this.saveViewLock) {
+          offs += 12
+          continue
+        }
+
+        const x = chunk.readFloatLE(offs)
+        const y = chunk.readFloatLE(offs + 4)
+        const player = chunk.readInt32LE(offs + 8)
+        offs += 12
+
+        this.push({
+          type: 'view',
+          time: this.currentTime,
+          player,
+          x,
+          y
+        })
+      } else if (odType === 4) {
         command = chunk.readInt32LE(offs)
         offs += 4
         if (command === 0x01f4) {
@@ -60,7 +88,7 @@ class BodyParser extends Transform {
           })
           offs += 20
         } else if (command === -1) {
-          var chatLength = chunk.readUInt32LE(offs)
+          const chatLength = chunk.readUInt32LE(offs)
           offs += 4
           this.push({
             type: 'chat',
@@ -73,81 +101,67 @@ class BodyParser extends Transform {
           throw new TypeError('other command')
         }
       } else if (odType === 2) {
-        if (offs > size - 8) {
-          offs -= 4
-          break
-        }
+        const backtrack = offs - 4
         // we read sync commands with the standard buffer methods because their length is not constant
         // we cannot know in advance if the command is completely within the current buffer, so we need
         // to be able to backtrack at different locations
         // an alternative would be to wrap a sync Struct() in a try-catch, but that is kinda expensive
         // compared to this
-        var pack = {}
-        var backtrack = offs - 4
-        pack.time = chunk.readInt32LE(offs)
+        const sync = {
+          time: chunk.readInt32LE(offs)
+        }
         offs += 4
-        pack.u0 = chunk.readInt32LE(offs)
-        offs += 4
-        if (pack.u0 === 0) {
+
+        const containsChecksum = this.nextChecksum === 1
+        if (containsChecksum) {
           if (offs > size - 28) {
             offs = backtrack
             break
           }
           if (this.saveSync) {
-            pack.u1 = chunk.readInt32LE(offs)
+            offs += 4 // always 0
+            offs += 4 // always 0
+            sync.checksum = chunk.readInt32LE(offs)
             offs += 4
-            pack.u2 = chunk.slice(offs, offs + 4)
+            sync.positionChecksum = chunk.readInt32LE(offs)
             offs += 4
-            pack.u3 = chunk.readInt32LE(offs)
-            offs += 4
-            pack.u4 = chunk.readInt32LE(offs)
-            offs += 4
-            pack.u5 = chunk.readInt32LE(offs)
-            offs += 4
-            pack.u6 = chunk.slice(offs, offs + 4)
-            offs += 4
-            pack.u7 = chunk.readInt32LE(offs)
+            offs += 4 // always 0
+            offs += 4 // always 0
+            sync.actionChecksum = chunk.readInt32LE(offs)
             offs += 4
           } else {
             offs += 28
           }
         }
-        if (offs > size - 12) {
-          offs = backtrack
-          break
-        }
-        if (this.saveSync) {
-          pack.x = chunk.readFloatLE(offs)
-          offs += 4
-          pack.y = chunk.readFloatLE(offs)
-          offs += 4
-          pack.player = chunk.readInt32LE(offs)
-          offs += 4
 
+        if (this.saveSync) {
           this.push({
             type: 'sync',
             time: this.currentTime,
-            data: pack
+            data: sync
           })
-        } else {
-          offs += 12
         }
-        this.currentTime += pack.time
+
+        this.currentTime += sync.time
+        if (containsChecksum) {
+          this.nextChecksum = CHECKSUM_INTERVAL
+        } else {
+          this.nextChecksum -= 1
+        }
       } else if (odType === 1) {
-        var length = chunk.readInt32LE(offs)
+        const length = chunk.readInt32LE(offs)
         offs += 4
         if (offs + length + 3 >= size) {
           offs -= 8
           break
         }
 
-        var action = TriageAction.read({ buf: chunk, offset: offs })
+        const action = TriageAction.read({ buf: chunk, offset: offs })
         if (action) {
           this.push({
             type: 'action',
             time: this.currentTime,
-            id: action.actionId,
-            name: action.actionName,
+            id: action.actionType,
             length: length,
             data: action
           })
