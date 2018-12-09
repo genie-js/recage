@@ -82,15 +82,7 @@ const AIOrderAction = Struct([
   t.if(s => s.selectedCount === 1, Struct([
     ['objectIds', t.array(1, t.int32)]
   ])).else(t.skip(4)),
-  // some known types:
-  // { 700: 'attack',
-  //   701: 'defend', // position or object
-  //   702: 'build',
-  //   706: 'stop',
-  //   712: 'follow',
-  //   717: 'garrison',
-  //   718: 'repair',
-  //   721: 'unload' }
+  // see consts.AIOrderType
   ['orderType', t.int16],
   ['orderPriority', t.int8],
   t.skip(1), // padding

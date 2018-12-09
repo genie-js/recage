@@ -6,6 +6,9 @@ const fromBuffer = require('from2-buffer')
 const { PassThrough } = require('stream')
 const h = require('./header')
 const BodyParser = require('./BodyParser')
+const {
+  AIOrderType
+} = require('./consts')
 
 class RecordedGame {
   constructor (path) {
@@ -111,3 +114,4 @@ module.exports = function (path) {
   return new RecordedGame(path)
 }
 module.exports.RecordedGame = RecordedGame
+module.exports.AIOrderType = AIOrderType
