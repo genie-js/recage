@@ -634,7 +634,7 @@ const PlayerAchievements = Struct([
   ['color', t.int8],
   ['team', t.int8],
   ['allyCount', t.int8],
-  ct.const([0xff]),
+  t.skip(1),
   ['mvp', t.bool],
   t.skip(3),
   ['result', t.int8],
