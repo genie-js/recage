@@ -94,9 +94,21 @@ const MapData = Struct([
   ['terrain', ct.matrix('size.x', 'size.y', Tile)],
   ['obstructions', ObstructionManager],
   ['visibilityMap', VisibilityMap],
-  ['u0', t.int32],
-  ['u1Count', t.int32],
-  ['u1', t.array('u1Count', t.buffer(27))]
+])
+
+const ParticleSystem = Struct([
+  ['worldTime', t.int32],
+  ['count', t.int32],
+  ['particles', t.array('count', Struct([
+    ['u0', t.int32],
+    ['u1', t.int32],
+    ['u2', t.int32],
+    ['u3', t.int16],
+    ['u4', t.int32],
+    ['u5', t.int32],
+    ['u6', t.int32],
+    ['u7', t.int8]
+  ]))]
 ])
 
 const PlayerTech = Struct([
@@ -184,17 +196,17 @@ const TechTree = Struct([
 
 const HistoryInfo = Struct([
   t.skip(1),
-  ['entriesCount', t.int32],
+  ['historyEntriesCount', t.int32],
   ['eventsCount', t.int32],
   ['maxEntries', t.int32],
   t.skip(1),
-  ['entries', t.array('entriesCount', Struct([
-    ['zero', t.int16],
-    ['one', t.int16]
+  ['historyEntries', t.array('historyEntriesCount', Struct([
+    ['civilianPop', t.int16],
+    ['militaryPop', t.int16]
   ]))],
   ['eventsCount2', t.int32],
   ['events', t.array('eventsCount2', Struct([
-    ['next', t.int8],
+    ['type', t.int8],
     ['time', t.int32],
     ['worldTime', t.int32],
     ['event', t.int32],
@@ -206,7 +218,11 @@ const HistoryInfo = Struct([
   ['list1', t.array(8, t.uint32)],
   ['list2', t.array(8, t.uint16)],
   ['list3', t.array(8, t.uint32)],
-  t.skip(3 * 4 + 2 * 2),
+  t.skip(4),
+  t.skip(4),
+  t.skip(4),
+  t.skip(2),
+  t.skip(2),
   t.skip(1)
 ])
 
@@ -347,25 +363,33 @@ const Header = Struct([
   ['version', t.float],
   ['includeAi', ct.longBool],
   ['ai', t.if('includeAi', AIScripts)],
-  ['u0', t.uint32],
-  ['gameSpeed1', t.int32],
-  ['u1', t.int32],
-  ['gameSpeed2', t.int32],
-  ['u2', t.float],
-  ['u3', t.int32],
-  ['u4', t.buffer(21)],
+  ['oldTime', t.int32],
+  ['gameSpeed', t.int32],
+  ['oldWorldTime', t.int32],
+  ['worldTimeDelta', t.int32],
+  ['worldTimeDeltaSeconds', t.float],
+  ['timer', t.int32],
+  ['gameSpeed2', t.float],
+  ['tempPause', t.int8],
+  ['nextObjectId', t.int32],
+  ['nextReusableObjectId', t.int32],
+  ['randomSeed', t.int32],
+  ['randomSeed2', t.int32],
   ['owner', t.int16],
-  ['playersCount', t.int8],
+  ['playersCount', t.int16],
   ['quickBuildEnabled', t.bool],
   ['cheatsEnabled', t.bool],
-  ['gameMode', t.int16],
-  ['u6', t.buffer(12)],
-  ['u7', t.int32],
-  ['u8', t.int8],
-  ['u9', t.int8],
+  ['gameMode', t.int8],
+  ['campaign', t.int32],
+  ['campaignPlayer', t.int32],
+  ['campaignScenario', t.int32],
+  ['kingCampaign', t.int32],
+  ['kingCampaignPlayer', t.int8],
+  ['kingCampaignScenario', t.int8],
   ['playerTurn', t.int32],
   ['playerTimeDelta', t.array(9, t.int32)],
   ['mapData', MapData],
+  ['particleSystem', ParticleSystem],
   ['u13', t.int32], // what is this? 10060 in AoK recorded games, 40600 in AoC and on…
   ['players', t.array('playersCount', TribePlayer('playersCount'))]
 ])
