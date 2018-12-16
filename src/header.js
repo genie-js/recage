@@ -36,9 +36,9 @@ const AIScript = Struct([
 
 const AIScripts = Struct([
   ['stringTable', StringTable],
-  ['u1', t.int16],
-  ['u2', t.int16],
-  ['u3', t.int16],
+  ['maxFacts', t.int16],
+  ['maxActions', t.int16],
+  ['numPlayers', t.int16],
   ['scripts', t.array(8, AIScript)],
   ['u0', t.buffer(104)],
   ['timers', t.array(8, t.array(10, t.int32))],

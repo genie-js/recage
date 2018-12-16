@@ -25,6 +25,15 @@ exports.AIOrderType = {
   Relic: 731
 }
 
+exports.AIFactType = {
+  // This fact needs to be reevaluated every time.
+  Volatile: 1,
+  // This fact changes sometimes. It can be cached, and manually cleared.
+  Cached: 2,
+  // This fact never changes.
+  Constant: 3
+}
+
 const ActionType = {
   Order: 0x00,
   Stop: 0x01,
