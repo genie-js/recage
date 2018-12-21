@@ -196,11 +196,11 @@ const TechTree = Struct([
 
 const HistoryInfo = Struct([
   t.skip(1),
-  ['historyEntriesCount', t.int32],
+  ['entriesCount', t.int32],
   ['eventsCount', t.int32],
-  ['maxEntries', t.int32],
+  ['maxEntriesCount', t.int32],
   t.skip(1),
-  ['historyEntries', t.array('historyEntriesCount', Struct([
+  ['entries', t.array('entriesCount', Struct([
     ['civilianPop', t.int16],
     ['militaryPop', t.int16]
   ]))],
@@ -213,16 +213,32 @@ const HistoryInfo = Struct([
     ['v19', t.int32],
     ['l+8', t.int32]
   ]))],
-  t.skip(17 * 4),
-  ['list0', t.array(8, t.uint16)],
-  ['list1', t.array(8, t.uint32)],
-  ['list2', t.array(8, t.uint16)],
-  ['list3', t.array(8, t.uint32)],
-  t.skip(4),
-  t.skip(4),
-  t.skip(4),
-  t.skip(2),
-  t.skip(2),
+  ['razings', t.int32],
+  ['hitPointsRazed', t.int32],
+  ['razedByOthers', t.int32],
+  ['hitPointsRazedByOthers', t.int32],
+  ['kills', t.int32],
+  ['hitPointsKilled', t.int32],
+  ['killedByOthers', t.int32],
+  ['hitPointsKilledByOthers', t.int32],
+  ['razingsWeight', t.int32],
+  ['killsWeight', t.int32],
+  ['razingsPercent', t.int32],
+  ['killsPercent', t.int32],
+  ['razingMode', t.int32],
+  ['battleMode', t.int32],
+  ['updateCount', t.int32],
+  ['oldCurrentUnitsCreated', t.int32],
+  ['oldCurrentBuildingsBuilt', t.int32],
+  ['oldKills', t.array(8, t.uint16)],
+  ['oldKillBVs', t.array(8, t.uint32)],
+  ['oldRazings', t.array(8, t.uint16)],
+  ['oldRazingBVs', t.array(8, t.uint32)],
+  ['runningAverageBVPercent', t.int32],
+  ['runningTotalBVKills', t.int32],
+  ['runningTotalBVRazings', t.int32],
+  ['runningTotalKills', t.int16],
+  ['runningTotalRazings', t.int16],
   t.skip(1)
 ])
 
