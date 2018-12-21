@@ -73,6 +73,8 @@ const ObstructionManager = Struct([
 
 const Tile = Struct([
   ['terrain', t.int8],
+  // In UserPatch, the original terrain is also stored.
+  // It sets the terrain type to -1 to identify the new tile storage format.
   t.if(s => s.terrain === -1, Struct([
     ['terrain', t.int8],
     ['elevation', t.int8],
@@ -93,21 +95,20 @@ const MapData = Struct([
   ['fogOfWar', t.bool],
   ['terrain', ct.matrix('size.x', 'size.y', Tile)],
   ['obstructions', ObstructionManager],
-  ['visibilityMap', VisibilityMap],
+  ['visibilityMap', VisibilityMap]
 ])
 
 const ParticleSystem = Struct([
   ['worldTime', t.int32],
-  ['count', t.int32],
-  ['particles', t.array('count', Struct([
-    ['u0', t.int32],
-    ['u1', t.int32],
-    ['u2', t.int32],
-    ['u3', t.int16],
-    ['u4', t.int32],
-    ['u5', t.int32],
-    ['u6', t.int32],
-    ['u7', t.int8]
+  ['particles', t.dynarray(t.int32, Struct([
+    ['start', t.int32],
+    ['facet', t.int32],
+    ['update', t.int32],
+    ['spriteId', t.int16],
+    ['x', t.float],
+    ['y', t.float],
+    ['z', t.float],
+    ['flags', t.int8]
   ]))]
 ])
 
@@ -116,7 +117,6 @@ const PlayerTech = Struct([
   ['techs', t.array('count', Struct([
     ['timeProgress', t.float],
     ['state', t.int16],
-    // guesses:
     ['escrows', t.array(3, t.int16)],
     ['timeModifier', t.int16]
   ]))]
