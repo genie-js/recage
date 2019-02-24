@@ -344,7 +344,7 @@ const ObjectList = Struct([
     read (opts) {
       const result = []
       let object
-      while ((object = TriageObject.read(opts)) && object.type > 0) {
+      while ((object = TriageObject.read(opts)) && object.type !== 0) {
         result.push(object)
       }
       return result
@@ -454,9 +454,9 @@ const TribePlayer = playersCount => Struct([
   ['visibleMap', PlayerVisibleMap],
   ['visibleResources', VisibleResources],
   ct.const([11]),
-  ['objects', ObjectList.mapRead(console.log)],
-  ['sleepingObjects', ObjectList.mapRead(console.log)],
-  ['doppelgangerObjects', ObjectList.mapRead(console.log)],
+  ['objects', ObjectList],
+  ['sleepingObjects', ObjectList],
+  ['doppelgangerObjects', ObjectList],
   ct.const([11]),
 ])
 
