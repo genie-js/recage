@@ -8,19 +8,19 @@
   },
   "dependencies": {
     "associate-arrays": "^1.0.1",
-    "awestruct": "^1.1.0",
+    "awestruct": "^1.1.2",
     "concat-stream": "^2.0.0",
     "from2-buffer": "^1.0.0",
-    "genie-dat": "^0.3.0",
+    "genie-dat": "^0.4.0",
     "inflate-raw": "^1.0.0",
-    "pako": "^1.0.6",
-    "safe-buffer": "^5.0.1"
+    "pako": "^1.0.8",
+    "safe-buffer": "^5.1.2"
   },
   "devDependencies": {
-    "buble": "^0.19.3",
-    "chalk": "^2.4.1",
+    "buble": "^0.19.6",
+    "chalk": "^2.4.2",
     "minimist": "^1.2.0",
-    "standard": "^12.0.0",
+    "standard": "^12.0.1",
     "watch": "^1.0.1"
   },
   "homepage": "https://goto-bus-stop.github.io/recage",

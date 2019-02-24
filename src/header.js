@@ -4,6 +4,7 @@ const ct = require('./types')
 const resourceNames = require('./resourceNames')
 const { TriageCompactObject } = require('./compactObject')
 const { TriageObject } = require('./object')
+const TechTree = require('genie-dat/lib/tech-tree')
 
 const t = Struct.types
 
@@ -144,79 +145,6 @@ const PlayerTech = Struct([
     ['modifiers', t.array(3, t.int16)],
     ['timeModifier', t.int16]
   ]))]
-])
-
-const TechTreeCommon = Struct([
-  ['preregsCount', t.int8],
-  t.skip(3), // padding
-  ['preregIds', t.array(10, t.int32)],
-  ['preregTypes', t.array(10, t.int32)],
-])
-
-const TechTreeAge = Struct([
-  ['id', t.int32],
-  ['status', t.int8],
-  ['buildings', t.dynarray(t.uint8, t.int32)],
-  ['units', t.dynarray(t.uint8, t.int32)],
-  ['techs', t.dynarray(t.uint8, t.int32)],
-  TechTreeCommon,
-  ['buildingLevelCount', t.int8],
-  ['buildingsPerZone', t.array(10, t.int8)],
-  ['groupLengthPerZone', t.array(10, t.int8)],
-  ['maxAgeLength', t.int8],
-  ['nodeType', t.int32]
-])
-
-const TechTreeBuilding = Struct([
-  ['id', t.int32],
-  ['status', t.int8],
-  ['buildings', t.dynarray(t.uint8, t.int32)],
-  ['units', t.dynarray(t.uint8, t.int32)],
-  ['techs', t.dynarray(t.uint8, t.int32)],
-  TechTreeCommon,
-  ['locationInAge', t.int8],
-  ['unitsTechsTotal', t.array(5, t.int8)],
-  ['unitsTechsFirst', t.array(5, t.int8)],
-  ['nodeType', t.int32],
-  ['enablingResearch', t.int32]
-])
-
-const TechTreeUnit = Struct([
-  ['id', t.int32],
-  ['status', t.int8],
-  ['buildFrom', t.int32],
-  TechTreeCommon,
-  ['groupId', t.int32],
-  ['units', t.dynarray(t.uint8, t.int32)],
-  ['locationInAge', t.int32],
-  ['requiredResearch', t.int32],
-  ['nodeType', t.int32],
-  ['enablingResearch', t.int32]
-])
-
-const TechTreeResearch = Struct([
-  ['id', t.int32],
-  ['status', t.int8],
-  ['researchFrom', t.int32],
-  ['buildings', t.dynarray(t.uint8, t.int32)],
-  ['units', t.dynarray(t.uint8, t.int32)],
-  ['techs', t.dynarray(t.uint8, t.int32)],
-  TechTreeCommon,
-  ['groupId', t.int32],
-  ['locationInAge', t.int32],
-  ['nodeType', t.int32]
-])
-
-const TechTree = Struct([
-  ['ageCount', t.uint8],
-  ['buildingCount', t.uint8],
-  ['unitCount', t.uint8],
-  ['researchCount', t.uint8],
-  ['totalUnitTechGroups', t.int32],
-  ['ages', t.array('ageCount', TechTreeAge)],
-  ['buildings', t.array('buildingCount', TechTreeBuilding)],
-  ['units', t.array('unitCount', TechTreeUnit)],
-  ['researchs', t.array('researchCount', TechTreeResearch)]
 ])
 
 const HistoryInfo = Struct([
