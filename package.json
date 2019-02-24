@@ -11,7 +11,7 @@
     "awestruct": "^1.1.0",
     "concat-stream": "^2.0.0",
     "from2-buffer": "^1.0.0",
-    "genie-dat": "^0.3.0",
+    "genie-dat": "^0.4.0",
     "inflate-raw": "^1.0.0",
     "pako": "^1.0.6",
     "safe-buffer": "^5.0.1"
