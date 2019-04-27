@@ -89,11 +89,14 @@ const VisibilityMap = Struct([
 
 const ObstructionManager = Struct([
   ['dataCount', t.int32],
-  ['u0', t.int32],
-  ['u1', t.array('dataCount', t.int32)],
+  ['capacity', t.int32],
+  ['ids', t.array('dataCount', t.int32)],
   ['u2', t.array('dataCount', Struct([
     ['obstructionsCount', t.int32],
-    ['obstructionsData', t.array('obstructionsCount', t.buffer(8))]
+    ['points', t.array('obstructionsCount', Struct([
+      ['x', t.int32],
+      ['y', t.int32]
+    ]))]
   ]))]
 ])
 
