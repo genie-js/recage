@@ -2,6 +2,10 @@ const Struct = require('awestruct')
 const ct = require('./types')
 const t = Struct.types
 
+// Flag used for UserPatch 1.5 effects data
+const UP_EXTENDED_FLAG = -16
+const UP_EXTENDED_FLAG_UNSIGNED = 32767
+
 const StaticObject = Struct([
   ['type', t.int8],
   ['id', t.int16],
@@ -10,7 +14,16 @@ const StaticObject = Struct([
   ['class', t.int16],
   ['hotkeyId', t.int32],
   ['available', t.bool],
-  ['hiddenInEditor', t.bool],
+  ['hiddenInEditor', t.int8],
+  t.if(s => s.hiddenInEditor === UP_EXTENDED_FLAG, Struct([
+    ['deathObjectId', t.int16],
+    ['stringId', t.int16],
+    ['descriptionId', t.int16],
+    ['flags', t.uint32],
+    ['helpStringId', t.int32],
+    ['terrainRestriction', t.int16],
+    ['hiddenInEditor', t.bool],
+  ])),
   ['hp', t.int16],
   ['los', t.float],
   ['garrisonCapacity', t.int8],
@@ -78,13 +91,32 @@ const CombatObject = Struct([
   BaseCombatObject,
   ['buildInventory', t.array(3, ResourceCost)],
   ['buildPtsRequired', t.int16],
+  t.if(s => s.buildPtsRequired === UP_EXTENDED_FLAG, Struct([
+    ['originalPierceArmor', t.int16],
+    ['originalArmor', t.int16],
+    ['originalWeapon', t.int16],
+    ['originalWeaponRange', t.float],
+    ['areaEffectLevel', t.uint8],
+    ['frameDelay', t.int16],
+    ['buildAt', t.int16],
+    ['buttonLocation', t.uint8],
+    ['rearAttackModifier', t.float],
+    ['heroFlag', t.uint8],
+    ['buildPtsRequired', t.int16]
+  ])),
   ['volleyFireAmount', t.float],
   ['maxAttacksInVolley', t.int8]
 ])
 
 const BuildingObject = Struct([
   CombatObject,
-  ['buildingFacet', t.int16]
+  ['buildingFacet', t.int16],
+  t.if(s => s.buildingFacet === UP_EXTENDED_FLAG_UNSIGNED, Struct([
+    ['a', t.int8],
+    ['b', t.int8],
+    ['garrisonHealRate', t.float],
+    ['buildingFacet', t.int16],
+  ]))
 ])
 
 const TreeObject = StaticObject
