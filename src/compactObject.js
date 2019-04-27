@@ -1,5 +1,4 @@
 const Struct = require('awestruct')
-const ct = require('./types')
 const t = Struct.types
 
 // Flag used for UserPatch 1.5 effects data
@@ -22,7 +21,7 @@ const StaticObject = Struct([
     ['flags', t.uint32],
     ['helpStringId', t.int32],
     ['terrainRestriction', t.int16],
-    ['hiddenInEditor', t.bool],
+    ['hiddenInEditor', t.bool]
   ])),
   ['hp', t.int16],
   ['los', t.float],
@@ -115,7 +114,7 @@ const BuildingObject = Struct([
     ['a', t.int8],
     ['b', t.int8],
     ['garrisonHealRate', t.float],
-    ['buildingFacet', t.int16],
+    ['buildingFacet', t.int16]
   ]))
 ])
 
@@ -151,7 +150,7 @@ const TriageCompactObject = Struct.Type({
       case 70: return CombatObject.write(opts, value)
       case 80: return BuildingObject.write(opts, value)
       case 90: return TreeObject.write(opts, value)
-      default: throw new Error(`Encountered unknown object type: ${type}`)
+      default: throw new Error(`Encountered unknown object type: ${value.type}`)
     }
   },
   size (opts, value) {
@@ -166,7 +165,7 @@ const TriageCompactObject = Struct.Type({
       case 70: return CombatObject.size(opts, value)
       case 80: return BuildingObject.size(opts, value)
       case 90: return TreeObject.size(opts, value)
-      default: throw new Error(`Encountered unknown object type: ${type}`)
+      default: throw new Error(`Encountered unknown object type: ${value.type}`)
     }
   }
 })

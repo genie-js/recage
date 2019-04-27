@@ -312,7 +312,7 @@ const VisibleResourceRec = Struct([
   ['distance', t.int8],
   ['zone', t.int8],
   ['x', t.int8],
-  ['y', t.int8],
+  ['y', t.int8]
 ])
 
 const VisibleResources = Struct.Type({
@@ -457,7 +457,7 @@ const TribePlayer = playersCount => Struct([
   ['objects', ObjectList],
   ['sleepingObjects', ObjectList],
   ['doppelgangerObjects', ObjectList],
-  ct.const([11]),
+  ct.const([11])
 ])
 
 const Header = Struct([

@@ -158,7 +158,7 @@ const MovingObject = struct([
   ['userDefinedWaypoints', t.dynarray(t.int32, Vector)],
   ['hasSubstitutePosition', ct.longBool],
   ['substitutePosition', Vector],
-  ['consecutiveSubstituteCount', t.int32],
+  ['consecutiveSubstituteCount', t.int32]
 ])
 
 const ActionList = struct.Type({
@@ -379,7 +379,7 @@ const TriageAction = struct([
     t.if(s => s.$parent.type === 134, ActionUnitTransform),
     t.if(s => s.$parent.type === 135, ActionCapture),
     t.if(s => s.$parent.type === 136, ActionDeliverRelic),
-    t.if(s => s.$parent.type === 149, ActionShepherd),
+    t.if(s => s.$parent.type === 149, ActionShepherd)
   ])]
 ])
 
@@ -518,7 +518,7 @@ const TriageObject = struct.Type({
       case 70: return CombatObject.write(opts, value)
       case 80: return BuildingObject.write(opts, value)
       case 90: return TreeObject.write(opts, value)
-      default: throw new Error(`Encountered unknown object type: ${type}`)
+      default: throw new Error(`Encountered unknown object type: ${value.type}`)
     }
   },
   size (opts, value) {
@@ -533,7 +533,7 @@ const TriageObject = struct.Type({
       case 70: return CombatObject.size(opts, value)
       case 80: return BuildingObject.size(opts, value)
       case 90: return TreeObject.size(opts, value)
-      default: throw new Error(`Encountered unknown object type: ${type}`)
+      default: throw new Error(`Encountered unknown object type: ${value.type}`)
     }
   }
 })
