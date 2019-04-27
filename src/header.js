@@ -346,8 +346,11 @@ const ObjectList = Struct([
   ['items', Struct.Type({
     read (opts) {
       const result = []
-      let object
-      while ((object = TriageObject.read(opts)) && object.type !== 0) {
+      for (let i = 0; ; i++) {
+        if (opts.path !== null) opts.path.push(i)
+        const object = TriageObject.read(opts)
+        if (opts.path !== null) opts.path.pop()
+        if (object.type === 0) break
         result.push(object)
       }
       return result
