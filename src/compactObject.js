@@ -3,6 +3,7 @@ const ct = require('./types')
 const t = Struct.types
 
 const StaticObject = Struct([
+  ['type', t.int8],
   ['id', t.int16],
   ['copyId', t.int16],
   ['baseId', t.int16],
@@ -88,19 +89,55 @@ const BuildingObject = Struct([
 
 const TreeObject = StaticObject
 
-const TriageCompactObject = Struct([
-  ['type', t.int8],
-  t.if(s => s.type === 10, StaticObject),
-  t.if(s => s.type === 20, AnimatedObject),
-  t.if(s => s.type === 25, DoppelgangerObject),
-  t.if(s => s.type === 30, MovingObject),
-  t.if(s => s.type === 40, ActionObject),
-  t.if(s => s.type === 50, BaseCombatObject),
-  t.if(s => s.type === 60, MissileObject),
-  t.if(s => s.type === 70, CombatObject),
-  t.if(s => s.type === 80, BuildingObject),
-  t.if(s => s.type === 90, TreeObject)
-])
+// TODO upstream a `switch` type and a peek function
+const TriageCompactObject = Struct.Type({
+  read (opts, struct) {
+    const type = opts.buf[opts.offset]
+    switch (type) {
+      case 10: return StaticObject.read(opts, struct)
+      case 20: return AnimatedObject.read(opts, struct)
+      case 25: return DoppelgangerObject.read(opts, struct)
+      case 30: return MovingObject.read(opts, struct)
+      case 40: return ActionObject.read(opts, struct)
+      case 50: return BaseCombatObject.read(opts, struct)
+      case 60: return MissileObject.read(opts, struct)
+      case 70: return CombatObject.read(opts, struct)
+      case 80: return BuildingObject.read(opts, struct)
+      case 90: return TreeObject.read(opts, struct)
+      default: throw new Error(`Encountered unknown object type: ${type}`)
+    }
+  },
+  write (opts, value) {
+    switch (value.type) {
+      case 10: return StaticObject.write(opts, value)
+      case 20: return AnimatedObject.write(opts, value)
+      case 25: return DoppelgangerObject.write(opts, value)
+      case 30: return MovingObject.write(opts, value)
+      case 40: return ActionObject.write(opts, value)
+      case 50: return BaseCombatObject.write(opts, value)
+      case 60: return MissileObject.write(opts, value)
+      case 70: return CombatObject.write(opts, value)
+      case 80: return BuildingObject.write(opts, value)
+      case 90: return TreeObject.write(opts, value)
+      default: throw new Error(`Encountered unknown object type: ${type}`)
+    }
+  },
+  size (opts, value) {
+    switch (value.type) {
+      case 10: return StaticObject.size(opts, value)
+      case 20: return AnimatedObject.size(opts, value)
+      case 25: return DoppelgangerObject.size(opts, value)
+      case 30: return MovingObject.size(opts, value)
+      case 40: return ActionObject.size(opts, value)
+      case 50: return BaseCombatObject.size(opts, value)
+      case 60: return MissileObject.size(opts, value)
+      case 70: return CombatObject.size(opts, value)
+      case 80: return BuildingObject.size(opts, value)
+      case 90: return TreeObject.size(opts, value)
+      default: throw new Error(`Encountered unknown object type: ${type}`)
+    }
+  }
+})
 
 module.exports = {
   TriageCompactObject
