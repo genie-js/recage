@@ -583,31 +583,31 @@ const BackToWorkAction = Struct([
 // UserPatch multiplayer postgame data
 
 const MilitaryAchievements = Struct([
-  ['score', t.int16],
-  ['unitsKilled', t.int16],
-  ['hitPointsKilled', t.int16],
-  ['unitsLost', t.int16],
-  ['buildingsRazed', t.int16],
-  ['hitPointsRazed', t.int16],
-  ['buildingsLost', t.int16],
-  ['unitsConverted', t.int16]
+  ['score', t.uint16],
+  ['unitsKilled', t.uint16],
+  ['hitPointsKilled', t.uint16],
+  ['unitsLost', t.uint16],
+  ['buildingsRazed', t.uint16],
+  ['hitPointsRazed', t.uint16],
+  ['buildingsLost', t.uint16],
+  ['unitsConverted', t.uint16]
 ])
 
 const EconomyAchievements = Struct([
-  ['score', t.int16],
+  ['score', t.uint16],
   t.skip(2),
   ['foodCollected', t.int32],
   ['woodCollected', t.int32],
   ['stoneCollected', t.int32],
   ['goldCollected', t.int32],
-  ['tributeSent', t.int16],
-  ['tributeReceived', t.int16],
-  ['tradeProfit', t.int16],
-  ['relicGold', t.int16]
+  ['tributeSent', t.uint16],
+  ['tributeReceived', t.uint16],
+  ['tradeProfit', t.uint16],
+  ['relicGold', t.uint16]
 ])
 
 const TechAchievements = Struct([
-  ['score', t.int16],
+  ['score', t.uint16],
   t.skip(2),
   ['feudalTime', t.int32],
   ['castleTime', t.int32],
@@ -618,18 +618,18 @@ const TechAchievements = Struct([
 ])
 
 const SocietyAchievements = Struct([
-  ['score', t.int16],
+  ['score', t.uint16],
   ['totalWonders', t.int8],
   ['totalCastles', t.int8],
   ['relics', t.int8],
   t.skip(1),
-  ['villagerHigh', t.int16]
+  ['villagerHigh', t.uint16]
 ])
 
 const PlayerAchievements = Struct([
   ['name', t.string(16).mapRead((n) => n.trim())],
-  ['totalScore', t.int16],
-  ['totalScores', t.array(8, t.int16)],
+  ['totalScore', t.uint16],
+  ['totalScores', t.array(8, t.uint16)],
   ['victory', t.bool],
   ['civilization', t.int8],
   ['color', t.int8],
