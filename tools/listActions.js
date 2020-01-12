@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const { inspect } = require('util')
 const { Transform } = require('stream')
 const RecordedGame = require('../src/RecordedGame')
