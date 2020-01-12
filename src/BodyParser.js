@@ -46,7 +46,7 @@ class BodyParser extends Transform {
 
   _transform (chunk, enc, next) {
     if (this.buffer) {
-      chunk = Buffer.concat([ this.buffer, chunk ])
+      chunk = Buffer.concat([this.buffer, chunk])
       this.buffer = null
     }
 
