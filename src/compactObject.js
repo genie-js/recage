@@ -65,7 +65,7 @@ const BaseCombatObject = Struct([
   ['baseArmor', t.int16],
   ['attacks', t.dynarray(t.uint16, HitType)],
   ['armors', t.dynarray(t.uint16, HitType)],
-  ['attacks', t.float],
+  ['attackSpeed', t.float],
   ['weaponRangeMax', t.float],
   ['baseHitChance', t.int16],
   ['projectileObjectId', t.int16],

@@ -57,8 +57,8 @@ if (args.raw) {
     if (op.type === 'action') {
       console.log(
         chalk.grey(time),
-        chalk.red(ActionName[op.data.actionType]),
-        inspect(op.data, { colors: true, breakLength: Infinity }))
+        chalk.red(ActionName[op.data.actionType] || 'Unknown'),
+        inspect(op.data, { colors: chalk.supportsColor, breakLength: Infinity }))
     } else if (op.type === 'sync') {
       console.log(
         chalk.grey(time),

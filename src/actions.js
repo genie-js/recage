@@ -184,7 +184,8 @@ const PatrolWaypoints = Struct([
 
 const PatrolAction = Struct([
   ['selectedCount', t.int8],
-  ['waypoints', t.dynarray(t.int16, PatrolWaypoints)],
+  ['waypointCount', t.int16],
+  ['waypoints', t.array(10, PatrolWaypoints)],
   ['units', ObjectList]
 ])
 
@@ -358,6 +359,11 @@ const GameAction = Struct([
     t.skip(1),
     ['amount', t.int16],
     t.skip(10)
+  ])),
+
+  // Farm auto reseed queue.
+  t.if((x) => x.command === 0x10, Struct([
+    ['unknown', t.buffer(13)]
   ]))
 ])
 
@@ -380,7 +386,7 @@ const BuildWallAction = Struct([
   t.skip(1),
   ['buildingId', t.int16],
   t.skip(2),
-  ct.const([0xff, 0xff, 0xff, 0xff]),
+  ['unknown', t.uint32],
   ['builders', ObjectList]
 ])
 
@@ -517,7 +523,7 @@ const SetGatherPointAction = Struct([
   ['targetType', t.int32], // 0xffff0000 if there is no target object, object type otherwise?
   ['x', t.float],
   ['y', t.float],
-  ['objects', ObjectList]
+  ['units', ObjectList]
 ])
 
 // 0x79
@@ -556,7 +562,7 @@ const UnitTransformAction = Struct([
   t.skip(1),
   t.int32,
   t.skip(4),
-  ['objects', ObjectList]
+  ['units', ObjectList]
 ])
 
 // 0x7e
@@ -577,6 +583,17 @@ const TownBellAction = Struct([
 const BackToWorkAction = Struct([
   t.skip(3),
   ['buildingId', t.int32]
+])
+
+// 0x81
+const DefinitiveQueueAction = Struct([
+  ['playerId', t.int8],
+  ['buildingType', t.int16],
+  ['selectedCount', t.int8],
+  t.skip(1),
+  ['unitType', t.int16],
+  ['unitTypeCount', t.int16],
+  ['units', ObjectList]
 ])
 
 // 0xff
@@ -737,6 +754,7 @@ const actionCodecs = {
   [ActionType.DropRelic]: DropRelicAction,
   [ActionType.TownBell]: TownBellAction,
   [ActionType.BackToWork]: BackToWorkAction,
+  [ActionType.DefinitiveQueue]: DefinitiveQueueAction,
   [ActionType.PostgameData]: PostgameData
 }
 
@@ -806,6 +824,7 @@ module.exports = {
   DropRelicAction,
   TownBellAction,
   BackToWorkAction,
+  DefinitiveQueueAction,
   PostgameData,
   TriageAction
 }

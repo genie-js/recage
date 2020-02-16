@@ -10,14 +10,19 @@ const StartCommand = Struct([
   ['pov', t.int32],
   ['revealMap', t.int32],
   ['recordSequenceNumbers', t.int32],
-  // not 100% sure about this
   ['numberOfChapters', t.int32]
+])
+
+const DefinitiveStartCommand = Struct([
+  ['prepad', t.int32],
+  StartCommand,
 ])
 
 const OP_ACTION = 1
 const OP_SYNC = 2
 const OP_VIEWLOCK = 3
 const OP_META = 4
+const OP_DE2_START = 5
 
 /**
  * Recorded Game Body parser stream. Receives body data, outputs the commands.
@@ -84,6 +89,15 @@ class BodyParser extends Transform {
           x,
           y
         })
+      } else if (operationType === OP_DE2_START) {
+        const checksumInterval = chunk.readInt32LE(offs)
+        offs += 4
+        this.checksumInterval = checksumInterval
+        this.push(Object.assign(
+          { type: 'start', time: this.currentTime },
+          DefinitiveStartCommand.read({ buf: chunk, offset: offs })
+        ))
+        offs += 24
       } else if (operationType === OP_META) {
         const checksumInterval = chunk.readInt32LE(offs)
         offs += 4
@@ -137,12 +151,17 @@ class BodyParser extends Transform {
             offs += 4
             sync.positionChecksum = chunk.readInt32LE(offs)
             offs += 4
+            const more = chunk.readInt32LE(offs)
             offs += 4 // always 0
             offs += 4 // always 0
             sync.actionChecksum = chunk.readInt32LE(offs)
             offs += 4
+            if (more) offs += 332
           } else {
-            offs += 28
+            offs += 16
+            const more = chunk.readInt32LE(offs)
+            offs += 12
+            if (more) offs += 332
           }
         }
 
